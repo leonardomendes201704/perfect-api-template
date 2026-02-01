@@ -75,6 +75,26 @@
         }
     };
 
+    var filterDrawerFilters = new GridFilterViewModel
+    {
+        Action = "Showcase",
+        Controller = "Ui",
+        Fields = new List<GridFilterField>
+        {
+            new() { Label = "Search", Name = "Search", Value = "" },
+            new() { Label = "Status", Name = "Status", Value = "Active" }
+        }
+    };
+
+    var filterDrawer = new FilterDrawerViewModel
+    {
+        Id = "showcaseFilters",
+        Title = "Filter drawer",
+        Filters = filterDrawerFilters,
+        ButtonText = "Open filters",
+        ButtonCssClass = "btn btn-outline-primary"
+    };
+
     var emptyState = new EmptyStateViewModel
     {
         Message = "No items were found. Start by creating your first record.",
@@ -88,6 +108,7 @@
     var alertSection = new FormSectionViewModel { Title = "Alerts", Description = "Contextual feedback" };
     var infoListSection = new FormSectionViewModel { Title = "Info list", Description = "Compact key/value summary" };
     var quickLinksSection = new FormSectionViewModel { Title = "Quick links", Description = "Primary navigation shortcuts" };
+    var filterDrawerSection = new FormSectionViewModel { Title = "Filter drawer", Description = "Offcanvas filter pattern" };
     var formSection = new FormSectionViewModel { Title = "Forms", Description = "Common inputs and layout" };
     var validationSection = new FormSectionViewModel { Title = "Input groups & validation", Description = "Helper text and feedback states" };
     var navigationSection = new FormSectionViewModel { Title = "Pagination & breadcrumbs", Description = "Navigation patterns" };
@@ -158,6 +179,12 @@
             <div class="card-body">
                 <partial name="_FormSection" model="quickLinksSection" />
                 <partial name="_QuickLinks" model="quickLinks" />
+            </div>
+        </div>
+<div class="card mt-4">
+            <div class="card-body">
+                <partial name="_FormSection" model="filterDrawerSection" />
+                <partial name="_FilterDrawer" model="filterDrawer" />
             </div>
         </div>
     </div>

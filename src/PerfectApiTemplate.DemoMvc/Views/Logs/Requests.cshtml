@@ -51,6 +51,14 @@
         ResetUrl = Url.Action("Requests", "Logs")
     };
 
+    var filterDrawer = new FilterDrawerViewModel
+    {
+        Id = "requestLogsFilters",
+        Title = "Request log filters",
+        Filters = filters,
+        ButtonText = "Filters"
+    };
+
     var grid = new GridBuilder<RequestLogDto>()
         .WithTitle("Request Logs")
         .WithSubtitle($"Total: {Model.Pagination.TotalCount}")
@@ -66,9 +74,5 @@
         .Build();
 }
 
-@if (grid.Filters is not null)
-{
-    <partial name="_GridFilters" model="grid.Filters" />
-}
-
+<partial name="_FilterDrawer" model="filterDrawer" />
 <partial name="_Grid" model="grid" />

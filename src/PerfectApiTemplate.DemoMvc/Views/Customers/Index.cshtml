@@ -66,6 +66,15 @@
         ResetUrl = Url.Action("Index", "Customers")
     };
 
+    var filterDrawer = new FilterDrawerViewModel
+    {
+        Id = "customersFilters",
+        Title = "Customer filters",
+        Filters = filters,
+        ButtonText = "Filters",
+        ButtonCssClass = "btn btn-outline-primary"
+    };
+
     var grid = new GridBuilder<CustomerDto>()
         .WithTitle("Customers")
         .WithSubtitle($"Total: {Model.Pagination.TotalCount}")
@@ -84,9 +93,5 @@
         .Build();
 }
 
-@if (grid.Filters is not null)
-{
-    <partial name="_GridFilters" model="grid.Filters" />
-}
-
+<partial name="_FilterDrawer" model="filterDrawer" />
 <partial name="_Grid" model="grid" />

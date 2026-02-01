@@ -70,3 +70,5 @@
 - Added automatic EF Core migrations on startup for MainDb and LogsDb.
 - Added migration SyncModel for ApplicationDbContext to resolve pending model changes.
 - Added App_Data to .gitignore to prevent database files from being tracked.
+- Added reusable filter drawer (offcanvas) component and migrated list screens to use it.
+- Added filter drawer component to UI Showcase.
