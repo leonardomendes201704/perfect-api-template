@@ -83,6 +83,13 @@ When implementing a new endpoint:
 - Every new feature or fix must add/update unit and integration tests with happy-path and failure scenarios.
 - Regression coverage is required: tests must validate no leftover/dirty data is persisted after failures and must clean up any data they create.
 
+## Frontend (Demo MVC) guidelines
+- Use server-rendered MVC with PRG (Post-Redirect-Get).
+- Use shared UI partials (GridBuilder, alerts, empty state, quick links, stat cards).
+- No SPA frameworks; minimal JS (only Bootstrap behaviors).
+- Store JWT only in server-side session (never localStorage).
+- Any new or modified reusable UI component must be added/updated in the UI Showcase page.
+
 ## PR checklist
 - Build succeeds (`dotnet build`).
 - Tests pass (`dotnet test`).

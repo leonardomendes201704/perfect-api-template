@@ -65,3 +65,4 @@
 - Added reusable UI partials (stat card, info list, empty state, form section) and documented UI checklist.
 - Added reusable QuickLinks partial and applied it to the Dashboard.
 - Added QuickLinks component to UI Showcase and documented component update rule.
+- Added Demo MVC agent guidelines and per-folder agent.md files for frontend.
