@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using PerfectApiTemplate.Application.Common.Models;
 
@@ -49,3 +49,4 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         throw new ValidationException(failures);
     }
 }
+

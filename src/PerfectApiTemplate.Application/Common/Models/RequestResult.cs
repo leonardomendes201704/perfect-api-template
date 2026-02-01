@@ -1,4 +1,4 @@
-namespace PerfectApiTemplate.Application.Common.Models;
+﻿namespace PerfectApiTemplate.Application.Common.Models;
 
 public sealed class RequestResult<T>
 {
@@ -25,3 +25,4 @@ public sealed class RequestResult<T>
     public static RequestResult<T> ValidationFailure(IReadOnlyDictionary<string, string[]> errors) =>
         new(false, default, "validation_error", "One or more validation errors occurred.", errors);
 }
+

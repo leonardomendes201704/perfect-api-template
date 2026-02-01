@@ -1,7 +1,8 @@
-# agent.md - PerfectApiTemplate.Infrastructure
+﻿# agent.md - PerfectApiTemplate.Infrastructure
 
 ## Purpose
 - Persistence (EF Core) and external integrations (clients, messaging, etc.).
+ - Outbox processing lives in Infrastructure.
 
 ## Allowed dependencies
 - Application and Domain.
@@ -14,6 +15,7 @@
 - Keep migrations under `Persistence/Migrations` (or the chosen folder).
 - Register infrastructure services via a single DI entry point (e.g., `DependencyInjection` extension).
 - External clients must be behind Application abstractions (interfaces defined in Application).
+- Outbox processor is a hosted service, and publishers implement `INotificationPublisher`.
 
 ## Forbidden actions
 - Business rules in persistence/integration code.
@@ -36,3 +38,4 @@ Use:
 ```bash
 dotnet ef migrations add <MigrationName> --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api
 dotnet ef database update --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api
+

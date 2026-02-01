@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PerfectApiTemplate.Api.Middleware;
 using PerfectApiTemplate.Application.Common.Models;
 
@@ -37,6 +37,36 @@ public static class ResultExtensions
                 Detail = result.ErrorMessage,
                 Status = StatusCodes.Status404NotFound
             },
+            "auth.email_exists" => new ProblemDetails
+            {
+                Title = "Conflict",
+                Detail = result.ErrorMessage,
+                Status = StatusCodes.Status409Conflict
+            },
+            "auth.invalid_credentials" => new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Detail = result.ErrorMessage,
+                Status = StatusCodes.Status401Unauthorized
+            },
+            "auth.unauthorized" => new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Detail = result.ErrorMessage,
+                Status = StatusCodes.Status401Unauthorized
+            },
+            "auth.invalid_password" => new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Detail = result.ErrorMessage,
+                Status = StatusCodes.Status401Unauthorized
+            },
+            "auth.user_not_found" => new ProblemDetails
+            {
+                Title = "Not Found",
+                Detail = result.ErrorMessage,
+                Status = StatusCodes.Status404NotFound
+            },
             _ => new ProblemDetails
             {
                 Title = "Bad Request",
@@ -57,3 +87,4 @@ public static class ResultExtensions
         }
     }
 }
+

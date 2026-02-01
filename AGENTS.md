@@ -1,4 +1,4 @@
-# AGENTS.md - Perfect API Template
+﻿# AGENTS.md - Perfect API Template
 
 ## Architecture overview
 - Clean Architecture with four layers:
@@ -22,14 +22,16 @@
 - Controllers: routing, auth attributes, request/response mapping ONLY.
 - Handlers: orchestration only (call Services/Repositories), no complex business rules.
 - Services (Application): business rules, validations that require data, orchestration logic.
-- Domain: entities/value objects/domain rules that don’t depend on infrastructure.
+- Domain: entities/value objects/domain rules that don�t depend on infrastructure.
 - Infrastructure: EF Core DbContext/mappings/repositories, external clients, observability plumbing.
+- Outbox: Application enqueues via `IOutboxEnqueuer`; Infrastructure processes and publishes via `INotificationPublisher`.
 
 ## Coding standards
 - Naming:
   - PascalCase for types/methods/properties
   - camelCase for locals/parameters
   - async methods end with `Async` (except MediatR Handle)
+- Language: All code identifiers, comments, and strings intended for developers must be in EN-US (never PT-BR).
 - Folders:
   - Features live under `Application/Features/<FeatureName>/Commands` and `/Queries`
   - Each command/query has its own folder: `<ActionName>/`
@@ -69,6 +71,9 @@ When implementing a new endpoint:
 - Unit tests target Application/Domain logic (no infrastructure).
 - Integration tests use WebApplicationFactory and hit real HTTP endpoints.
 - Tests must compile and run without external dependencies.
+- Outbox flows can be smoke-tested by enqueuing and verifying processed state/logs.
+- Every new feature or fix must add/update unit and integration tests with happy-path and failure scenarios.
+- Regression coverage is required: tests must validate no leftover/dirty data is persisted after failures and must clean up any data they create.
 
 ## PR checklist
 - Build succeeds (`dotnet build`).
@@ -86,6 +91,9 @@ When implementing a new endpoint:
 Every code change must append an entry to `HistoryLog.md` at solution root with:
 - Date (YYYY-MM-DD)
 - Short description of the change
+
+## Appsettings/ENV documentation rule (MANDATORY)
+Whenever any appsettings key is added or modified, update the README `ENVs` section to reflect it.
 
 ## Git commit & push rule (MANDATORY)
 Every commit and push must include:
@@ -113,3 +121,5 @@ dotnet ef migrations add <MigrationName> \
 dotnet ef database update \
   --project src/PerfectApiTemplate.Infrastructure \
   --startup-project src/PerfectApiTemplate.Api
+```
+

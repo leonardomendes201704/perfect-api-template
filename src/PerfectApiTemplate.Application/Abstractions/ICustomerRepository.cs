@@ -1,4 +1,4 @@
-using PerfectApiTemplate.Domain.Entities;
+﻿using PerfectApiTemplate.Domain.Entities;
 
 namespace PerfectApiTemplate.Application.Abstractions;
 
@@ -9,3 +9,4 @@ public interface ICustomerRepository
     Task<Customer?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Customer>> ListAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 }
+

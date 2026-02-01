@@ -1,4 +1,4 @@
-# History Log
+﻿# History Log
 
 ## 2026-02-01
 - Initialized template and baseline structure.
@@ -9,3 +9,31 @@
 - Initialized git repo, added .gitignore, and pushed initial commit to GitHub.
 - Added README section explaining how to use this repo as a GitHub template.
 - Added rule requiring detailed commit and push titles/descriptions.
+- Added minimal Outbox/notification system with background processing and guidance updates.
+- Added outbox migration (AddOutbox), design-time DbContext factory, and applied database update.
+- Added .editorconfig/.gitattributes to enforce UTF-8 and LF endings.
+
+- Added rule requiring EN-US for all code identifiers/comments.
+- Added appsettings/ENV documentation rule and README ENVs section.
+- Added rule requiring happy-path and failure scenarios in unit/integration tests for each feature/fix.
+- Added regression testing rule to ensure no leftover/dirty data after failures and cleanup of created data.
+- Added internal user management with external auth providers and updated ENVs/README.
+- Added user management (internal + social auth), auth endpoints, tests, and migration AddUserManagement.
+- Updated JWT signing key length for HS256 requirements.
+- Added admin user seeding via AdminUser settings.
+- Added integration test for admin user seeding.
+- Seeded admin user explicitly in integration test host to validate admin creation in Testing environment.
+- Added AdminUser overrides in integration test configuration to ensure seeding succeeds.
+- Updated admin seed integration test to invoke seeder and assert idempotency.
+- Added explicit AdminUserOptions override in integration test services for seeding.
+- Ensured test host replaces ApplicationDbContext registration to use shared in-memory SQLite.
+- Added fallback defaults in admin seeder to avoid missing config in tests.
+- Enabled admin seeding in all environments to support integration tests.
+- Added assertions for AdminUser options in admin seed integration test.
+- Forced AdminUserOptions via PostConfigure in integration tests.
+- Adjusted admin seed integration test to construct seeder with explicit options.
+- Switched integration tests to EF Core InMemory to stabilize admin seed verification.
+- Added diagnostics in admin seed test to verify DbContext scoping.
+- Fixed integration test DB scope by using a stable InMemory database name per factory.
+- Simplified admin seed test to assert active flag via projection.
+- Reverted integration tests to shared SQLite in-memory provider to avoid mixed providers.

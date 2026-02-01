@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using PerfectApiTemplate.Tests.Integration.Fixtures;
 
 namespace PerfectApiTemplate.Tests.Integration;
@@ -20,3 +20,4 @@ public sealed class HealthEndpointTests : IClassFixture<CustomWebApplicationFact
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 }
+

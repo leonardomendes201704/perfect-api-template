@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using PerfectApiTemplate.Application.Common.Models;
 using PerfectApiTemplate.Application.Features.Customers;
 
@@ -18,3 +18,4 @@ public sealed class CreateCustomerCommandHandler : IRequestHandler<CreateCustome
         return await _customerService.CreateCustomerAsync(request.Name, request.Email, request.DateOfBirth, cancellationToken);
     }
 }
+

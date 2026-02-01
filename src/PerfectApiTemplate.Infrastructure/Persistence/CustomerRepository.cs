@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PerfectApiTemplate.Application.Abstractions;
 using PerfectApiTemplate.Domain.Entities;
 
@@ -43,3 +43,4 @@ public sealed class CustomerRepository : ICustomerRepository
             .ToListAsync(cancellationToken);
     }
 }
+

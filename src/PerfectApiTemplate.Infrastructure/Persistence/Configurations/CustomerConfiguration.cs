@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PerfectApiTemplate.Domain.Entities;
 
@@ -23,3 +23,4 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasIndex(c => c.Email).IsUnique();
     }
 }
+

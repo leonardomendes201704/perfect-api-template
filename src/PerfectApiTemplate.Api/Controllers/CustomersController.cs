@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PerfectApiTemplate.Api.Contracts;
 using PerfectApiTemplate.Api.Extensions;
@@ -44,3 +44,4 @@ public sealed class CustomersController : ControllerBase
         return this.ToActionResult(result);
     }
 }
+

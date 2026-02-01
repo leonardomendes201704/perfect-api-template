@@ -1,4 +1,4 @@
-# agent.md - Tests
+﻿# agent.md - Tests
 
 ## Purpose
 - Unit and integration tests for the solution.
@@ -17,3 +17,4 @@
 ## Acceptance checklist
 - Tests compile and run in CI.
 - Integration tests hit HTTP endpoints.
+

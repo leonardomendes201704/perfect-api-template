@@ -1,4 +1,4 @@
-using Serilog.Context;
+﻿using Serilog.Context;
 
 namespace PerfectApiTemplate.Api.Middleware;
 
@@ -27,3 +27,4 @@ public sealed class CorrelationIdMiddleware
         }
     }
 }
+

@@ -1,4 +1,4 @@
-namespace PerfectApiTemplate.Domain.Entities;
+﻿namespace PerfectApiTemplate.Domain.Entities;
 
 public sealed class Customer
 {
@@ -8,3 +8,4 @@ public sealed class Customer
     public DateOnly DateOfBirth { get; set; }
     public DateTime CreatedAtUtc { get; set; }
 }
+

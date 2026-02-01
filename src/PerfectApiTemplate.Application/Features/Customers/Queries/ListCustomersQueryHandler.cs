@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using PerfectApiTemplate.Application.Abstractions;
 using PerfectApiTemplate.Application.Common.Models;
 
@@ -24,3 +24,4 @@ public sealed class ListCustomersQueryHandler : IRequestHandler<ListCustomersQue
         return RequestResult<IReadOnlyList<CustomerDto>>.Success(dtos);
     }
 }
+

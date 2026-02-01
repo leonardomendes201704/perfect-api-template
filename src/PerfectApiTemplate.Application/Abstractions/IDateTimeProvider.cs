@@ -1,6 +1,7 @@
-namespace PerfectApiTemplate.Application.Abstractions;
+﻿namespace PerfectApiTemplate.Application.Abstractions;
 
 public interface IDateTimeProvider
 {
     DateTime UtcNow { get; }
 }
+

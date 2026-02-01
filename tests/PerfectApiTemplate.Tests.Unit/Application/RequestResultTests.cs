@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using PerfectApiTemplate.Application.Common.Models;
 using PerfectApiTemplate.Application.Features.Customers.Commands;
 
@@ -50,3 +50,4 @@ public sealed class CreateCustomerCommandValidatorTests
         result.IsValid.Should().BeTrue();
     }
 }
+

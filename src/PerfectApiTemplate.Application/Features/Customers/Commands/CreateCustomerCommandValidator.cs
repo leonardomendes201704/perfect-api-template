@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace PerfectApiTemplate.Application.Features.Customers.Commands;
 
@@ -20,3 +20,4 @@ public sealed class CreateCustomerCommandValidator : AbstractValidator<CreateCus
             .WithMessage("Date of birth must be in the past.");
     }
 }
+

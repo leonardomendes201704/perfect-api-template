@@ -1,4 +1,4 @@
-# agent.md - PerfectApiTemplate.Api
+﻿# agent.md - PerfectApiTemplate.Api
 
 ## Purpose
 - HTTP API layer: routing, authentication/authorization, serialization, and wiring requests to Application via MediatR.
@@ -13,6 +13,7 @@
 - Map `RequestResult<T>` to HTTP responses via `ResultExtensions` (single mapping strategy).
 - Ensure error responses include `correlationId`.
 - Endpoints must be documented (summary + response types) and grouped by feature/tag.
+- Outbox usage is not allowed in API; side-effects go through Application services.
 
 ## Forbidden actions
 - Business logic in controllers or filters.
@@ -26,3 +27,4 @@
 - Auth rules applied (`[Authorize]` where required) and Swagger reflects it.
 - Error responses include `correlationId` (and follow ProblemDetails).
 - Swagger updated (summaries, response codes, schemas).
+

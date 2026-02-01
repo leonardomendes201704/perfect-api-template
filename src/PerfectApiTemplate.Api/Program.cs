@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PerfectApiTemplate.Api.Middleware;
+using PerfectApiTemplate.Api.Services;
 using PerfectApiTemplate.Application;
 using PerfectApiTemplate.Infrastructure;
 using Serilog;
@@ -28,6 +29,8 @@ builder.Host.UseSerilog();
 // MVC
 // --------------------------
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<PerfectApiTemplate.Application.Abstractions.Auth.ICurrentUserService, CurrentUserService>();
 
 // --------------------------
 // DI (Application + Infrastructure)
@@ -97,7 +100,8 @@ builder.Services.AddHealthChecks();
 // --------------------------
 builder.Services.AddProblemDetails(options =>
 {
-    options.IncludeExceptionDetails = (context, _) => builder.Environment.IsDevelopment();
+    options.IncludeExceptionDetails = (context, _) =>
+        builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Testing");
     options.OnBeforeWriteDetails = (context, details) =>
     {
         if (context.Items.TryGetValue(CorrelationIdMiddleware.HeaderName, out var value) && value is string correlationId)
@@ -198,7 +202,10 @@ if (app.Environment.IsDevelopment() && app.Configuration.GetValue("Swagger:OpenO
     });
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -206,6 +213,13 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<PerfectApiTemplate.Infrastructure.Auth.AdminUserSeeder>();
+    await seeder.SeedAsync();
+}
+
 app.Run();
 
 public partial class Program { }
+

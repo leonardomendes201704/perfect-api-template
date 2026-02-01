@@ -1,4 +1,4 @@
-using PerfectApiTemplate.Application.Abstractions;
+﻿using PerfectApiTemplate.Application.Abstractions;
 using PerfectApiTemplate.Application.Common.Models;
 using PerfectApiTemplate.Domain.Entities;
 
@@ -37,3 +37,4 @@ public sealed class CustomerService : ICustomerService
         return RequestResult<CustomerDto>.Success(new CustomerDto(customer.Id, customer.Name, customer.Email, customer.DateOfBirth, customer.CreatedAtUtc));
     }
 }
+
