@@ -1,0 +1,122 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Subtitle"] = "Overview of API health and recent activity";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small">API Status</div>
+                        <div class="h5 mb-0">@(@Model.ApiHealthy ? "Healthy" : "Unavailable")</div>
+                    </div>
+                    <span class="badge @(Model.ApiHealthy ? "text-bg-success" : "text-bg-danger")">
+                        @(Model.ApiHealthy ? "Up" : "Down")
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <a class="btn btn-sm btn-outline-primary" asp-controller="Settings" asp-action="Index">Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Quick Links</div>
+                <div class="d-grid gap-2 mt-2">
+                    <a class="btn btn-sm btn-light border" asp-controller="Customers" asp-action="Index">Customers</a>
+                    <a class="btn btn-sm btn-light border" asp-controller="Email" asp-action="Index">Email Test</a>
+                    <a class="btn btn-sm btn-light border" asp-controller="Logs" asp-action="Requests">Logs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Recent Requests</div>
+                @if (Model.RecentRequests.Count == 0)
+                {
+                    <div class="empty-state mt-3">No request logs yet.</div>
+                }
+                else
+                {
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Method</th>
+                                    <th>Path</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var log in Model.RecentRequests)
+                                {
+                                    <tr>
+                                        <td>@log.StartedAtUtc.ToLocalTime().ToString("g")</td>
+                                        <td>@log.Method</td>
+                                        <td>@log.Path</td>
+                                        <td><span class="badge text-bg-light border">@log.StatusCode</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Recent Errors</div>
+                @if (Model.RecentErrors.Count == 0)
+                {
+                    <div class="empty-state mt-3">No errors logged.</div>
+                }
+                else
+                {
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var log in Model.RecentErrors)
+                                {
+                                    <tr>
+                                        <td>@log.CreatedAtUtc.ToLocalTime().ToString("g")</td>
+                                        <td>@log.ExceptionType</td>
+                                        <td class="text-truncate" style="max-width: 240px;">@log.Message</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">UI Showcase</div>
+                <p class="mt-2">Explore reusable components for forms, tables, and empty states.</p>
+                <a class="btn btn-primary btn-sm" asp-controller="Ui" asp-action="Showcase">Open UI Showcase</a>
+            </div>
+        </div>
+    </div>
+</div>

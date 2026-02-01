@@ -25,23 +25,32 @@ public sealed class EmailOutboxProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            using var scope = _scopeFactory.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IEmailMessageRepository>();
-            var sender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
-
-            var messages = await repository.GetPendingAsync(_options.BatchSize, _options.MaxAttempts, stoppingToken);
-            if (messages.Count == 0)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(_options.OutboxPollingSeconds), stoppingToken);
-                continue;
-            }
+                using var scope = _scopeFactory.CreateScope();
+                var repository = scope.ServiceProvider.GetRequiredService<IEmailMessageRepository>();
+                var sender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
-            foreach (var message in messages)
-            {
-                await ProcessMessageAsync(repository, sender, message, stoppingToken);
+                var messages = await repository.GetPendingAsync(_options.BatchSize, _options.MaxAttempts, stoppingToken);
+                if (messages.Count == 0)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(_options.OutboxPollingSeconds), stoppingToken);
+                    continue;
+                }
+
+                foreach (var message in messages)
+                {
+                    await ProcessMessageAsync(repository, sender, message, stoppingToken);
+                }
             }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
+        catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 
@@ -92,6 +101,14 @@ public sealed class EmailOutboxProcessor : BackgroundService
 
             await repository.SaveChangesAsync(cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to process email message {EmailMessageId}", message.Id);
@@ -111,4 +128,3 @@ public sealed class EmailOutboxProcessor : BackgroundService
         }
     }
 }
-

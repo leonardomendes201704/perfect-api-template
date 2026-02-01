@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using PerfectApiTemplate.Application.Abstractions.Logging;
 using PerfectApiTemplate.Application.Common.Logging;
@@ -12,20 +13,17 @@ public sealed class ErrorLoggingMiddleware
     private readonly RequestDelegate _next;
     private readonly IErrorLogWriter _writer;
     private readonly LoggingOptions _options;
-    private readonly ICorrelationContext _correlationContext;
     private readonly ILogger<ErrorLoggingMiddleware> _logger;
 
     public ErrorLoggingMiddleware(
         RequestDelegate next,
         IErrorLogWriter writer,
         IOptions<LoggingOptions> options,
-        ICorrelationContext correlationContext,
         ILogger<ErrorLoggingMiddleware> logger)
     {
         _next = next;
         _writer = writer;
         _options = options.Value;
-        _correlationContext = correlationContext;
         _logger = logger;
     }
 
@@ -33,8 +31,9 @@ public sealed class ErrorLoggingMiddleware
     {
         try
         {
-            using (LogContext.PushProperty("CorrelationId", _correlationContext.CorrelationId ?? string.Empty))
-            using (LogContext.PushProperty("RequestId", _correlationContext.RequestId ?? string.Empty))
+            var correlationContext = context.RequestServices.GetRequiredService<ICorrelationContext>();
+            using (LogContext.PushProperty("CorrelationId", correlationContext.CorrelationId ?? string.Empty))
+            using (LogContext.PushProperty("RequestId", correlationContext.RequestId ?? string.Empty))
             {
                 await _next(context);
             }
@@ -59,6 +58,7 @@ public sealed class ErrorLoggingMiddleware
 
     private async Task LogExceptionAsync(HttpContext context, Exception ex)
     {
+        var correlationContext = context.RequestServices.GetRequiredService<ICorrelationContext>();
         string? requestBody = null;
         bool requestTruncated = false;
         long? requestOriginalLength = context.Request.ContentLength;
@@ -88,12 +88,12 @@ public sealed class ErrorLoggingMiddleware
             requestTruncated,
             requestOriginalLength,
             context.Response?.StatusCode,
-            _correlationContext.UserId,
-            _correlationContext.TenantId,
-            _correlationContext.CorrelationId,
-            _correlationContext.RequestId,
-            _correlationContext.TraceId,
-            _correlationContext.SpanId,
+            correlationContext.UserId,
+            correlationContext.TenantId,
+            correlationContext.CorrelationId,
+            correlationContext.RequestId,
+            correlationContext.TraceId,
+            correlationContext.SpanId,
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
             Environment.MachineName,
             typeof(Program).Assembly.GetName().Version?.ToString());

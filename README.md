@@ -11,6 +11,14 @@ Production-ready .NET 9 API starter using Clean Architecture + CQRS (MediatR), F
 
 The API will be available with Swagger at `/swagger` and health at `/health`.
 
+## Demo MVC UI
+Run the demo UI (server-rendered MVC) that exercises API features:
+```bash
+ dotnet run --project src/PerfectApiTemplate.DemoMvc
+```
+
+By default it calls the API at `https://localhost:7263`. Update the base URL from the **Settings** screen or set `ApiBaseUrl` in `src/PerfectApiTemplate.DemoMvc/appsettings.json`.
+
 ## Databases (SQLite)
 This template uses two databases:
 - MainDb: application data (`app.db`)
@@ -166,6 +174,8 @@ ExternalAuth:Providers:Microsoft:UserInfoUrl -> Microsoft Graph user info endpoi
 AdminUser:Email                    -> Admin seed email
 AdminUser:Password                 -> Admin seed password
 AdminUser:FullName                 -> Admin display name
+ApiBaseUrl                          -> Demo MVC API base URL
+Demo:AdminEmail                     -> Default email address used in Demo UI
 ```
 
 ## Use this repo as a template

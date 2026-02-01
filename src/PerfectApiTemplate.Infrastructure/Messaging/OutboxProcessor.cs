@@ -30,32 +30,49 @@ public sealed class OutboxProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            using var scope = _scopeFactory.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
-            var publisher = scope.ServiceProvider.GetRequiredService<INotificationPublisher>();
-
-            var messages = await repository.GetUnprocessedAsync(_options.BatchSize, stoppingToken);
-            if (messages.Count == 0)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(_options.PollingSeconds), stoppingToken);
-                continue;
-            }
+                using var scope = _scopeFactory.CreateScope();
+                var repository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+                var publisher = scope.ServiceProvider.GetRequiredService<INotificationPublisher>();
 
-            foreach (var message in messages)
-            {
-                try
+                var messages = await repository.GetUnprocessedAsync(_options.BatchSize, stoppingToken);
+                if (messages.Count == 0)
                 {
-                    await publisher.PublishAsync(message.Type, message.Payload, stoppingToken);
-                    await repository.MarkProcessedAsync(message, stoppingToken);
+                    await Task.Delay(TimeSpan.FromSeconds(_options.PollingSeconds), stoppingToken);
+                    continue;
                 }
-                catch (Exception ex)
+
+                foreach (var message in messages)
                 {
-                    _logger.LogError(ex, "Failed to publish outbox message {MessageId}", message.Id);
-                    await repository.MarkFailedAsync(message, ex.Message, stoppingToken);
+                    try
+                    {
+                        await publisher.PublishAsync(message.Type, message.Payload, stoppingToken);
+                        await repository.MarkProcessedAsync(message, stoppingToken);
+                    }
+                    catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to publish outbox message {MessageId}", message.Id);
+                        await repository.MarkFailedAsync(message, ex.Message, stoppingToken);
+                    }
                 }
             }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
+        catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 }

@@ -10,4 +10,7 @@ public sealed record ListCustomersQuery(
     string OrderBy = "CreatedAtUtc",
     string OrderDir = "desc",
     string? Cursor = null,
-    bool IncludeInactive = false) : IRequest<RequestResult<CursorPaginationResult<CustomerDto>>>;
+    bool IncludeInactive = false,
+    string? Search = null,
+    string? Email = null,
+    string? Name = null) : IRequest<RequestResult<CursorPaginationResult<CustomerDto>>>;

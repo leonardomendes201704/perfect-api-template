@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using PerfectApiTemplate.Application.Abstractions.Logging;
 using PerfectApiTemplate.Application.Common.Logging;
@@ -12,20 +13,17 @@ public sealed class RequestLoggingMiddleware
     private readonly RequestDelegate _next;
     private readonly IRequestLogWriter _writer;
     private readonly LoggingOptions _options;
-    private readonly ICorrelationContext _correlationContext;
     private readonly ILogger<RequestLoggingMiddleware> _logger;
 
     public RequestLoggingMiddleware(
         RequestDelegate next,
         IRequestLogWriter writer,
         IOptions<LoggingOptions> options,
-        ICorrelationContext correlationContext,
         ILogger<RequestLoggingMiddleware> logger)
     {
         _next = next;
         _writer = writer;
         _options = options.Value;
-        _correlationContext = correlationContext;
         _logger = logger;
     }
 
@@ -54,10 +52,11 @@ public sealed class RequestLoggingMiddleware
         var captureStream = new ResponseCaptureStream(originalBodyStream, _options.Requests.MaxBodyBytes);
         context.Response.Body = captureStream;
 
+        var correlationContext = context.RequestServices.GetRequiredService<ICorrelationContext>();
         try
         {
-            using (LogContext.PushProperty("CorrelationId", _correlationContext.CorrelationId ?? string.Empty))
-            using (LogContext.PushProperty("RequestId", _correlationContext.RequestId ?? string.Empty))
+            using (LogContext.PushProperty("CorrelationId", correlationContext.CorrelationId ?? string.Empty))
+            using (LogContext.PushProperty("RequestId", correlationContext.RequestId ?? string.Empty))
             {
                 await _next(context);
             }
@@ -84,7 +83,7 @@ public sealed class RequestLoggingMiddleware
             context.Response.Body = originalBodyStream;
 
             var statusCode = context.Response.StatusCode;
-            var shouldLog = statusCode >= 500 || ShouldSample(context);
+            var shouldLog = statusCode >= 500 || ShouldSample(context, correlationContext);
             if (shouldLog)
             {
                 var requestHeaders = SanitizeHeaders(context.Request.Headers);
@@ -114,12 +113,12 @@ public sealed class RequestLoggingMiddleware
                     responseOriginalLength,
                     context.Connection.RemoteIpAddress?.ToString(),
                     context.Request.Headers.UserAgent.ToString(),
-                    _correlationContext.UserId,
-                    _correlationContext.TenantId,
-                    _correlationContext.CorrelationId,
-                    _correlationContext.RequestId,
-                    _correlationContext.TraceId,
-                    _correlationContext.SpanId);
+                    correlationContext.UserId,
+                    correlationContext.TenantId,
+                    correlationContext.CorrelationId,
+                    correlationContext.RequestId,
+                    correlationContext.TraceId,
+                    correlationContext.SpanId);
 
                 try
                 {
@@ -146,7 +145,7 @@ public sealed class RequestLoggingMiddleware
         return false;
     }
 
-    private bool ShouldSample(HttpContext context)
+    private bool ShouldSample(HttpContext context, ICorrelationContext correlationContext)
     {
         if (_options.Requests.SamplingPercent >= 100)
         {
@@ -158,7 +157,7 @@ public sealed class RequestLoggingMiddleware
             return false;
         }
 
-        var key = _correlationContext.RequestId ?? _correlationContext.CorrelationId ?? context.TraceIdentifier;
+        var key = correlationContext.RequestId ?? correlationContext.CorrelationId ?? context.TraceIdentifier;
         var hash = key.GetHashCode();
         var normalized = Math.Abs(hash % 100);
         return normalized < _options.Requests.SamplingPercent;

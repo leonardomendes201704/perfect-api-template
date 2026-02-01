@@ -25,50 +25,66 @@ public sealed class EmailInboxProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            using var scope = _scopeFactory.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IEmailInboxRepository>();
-            var reader = scope.ServiceProvider.GetRequiredService<IEmailInboxReader>();
-
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                var items = await reader.ReadAsync(new EmailInboxReadRequest(_options.BatchSize), stoppingToken);
-                var added = 0;
+                using var scope = _scopeFactory.CreateScope();
+                var repository = scope.ServiceProvider.GetRequiredService<IEmailInboxRepository>();
+                var reader = scope.ServiceProvider.GetRequiredService<IEmailInboxReader>();
 
-                foreach (var item in items)
+                try
                 {
-                    if (await repository.ExistsByProviderMessageIdAsync(item.ProviderMessageId, stoppingToken))
+                    var items = await reader.ReadAsync(new EmailInboxReadRequest(_options.BatchSize), stoppingToken);
+                    var added = 0;
+
+                    foreach (var item in items)
                     {
-                        continue;
+                        if (await repository.ExistsByProviderMessageIdAsync(item.ProviderMessageId, stoppingToken))
+                        {
+                            continue;
+                        }
+
+                        await repository.AddAsync(new EmailInboxMessage
+                        {
+                            ProviderMessageId = item.ProviderMessageId,
+                            From = item.From,
+                            To = item.To,
+                            Subject = item.Subject,
+                            ReceivedAtUtc = item.ReceivedAtUtc,
+                            BodyPreview = item.BodyPreview,
+                            Status = EmailInboxStatus.New
+                        }, stoppingToken);
+
+                        added++;
                     }
 
-                    await repository.AddAsync(new EmailInboxMessage
+                    if (added > 0)
                     {
-                        ProviderMessageId = item.ProviderMessageId,
-                        From = item.From,
-                        To = item.To,
-                        Subject = item.Subject,
-                        ReceivedAtUtc = item.ReceivedAtUtc,
-                        BodyPreview = item.BodyPreview,
-                        Status = EmailInboxStatus.New
-                    }, stoppingToken);
-
-                    added++;
+                        await repository.SaveChangesAsync(stoppingToken);
+                    }
                 }
-
-                if (added > 0)
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
-                    await repository.SaveChangesAsync(stoppingToken);
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to process email inbox batch");
-            }
+                catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to process email inbox batch");
+                }
 
-            await Task.Delay(TimeSpan.FromSeconds(_options.InboxPollingSeconds), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(_options.InboxPollingSeconds), stoppingToken);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
+        catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 }
-

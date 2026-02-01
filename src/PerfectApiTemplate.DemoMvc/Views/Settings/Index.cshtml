@@ -1,0 +1,23 @@
+@model SettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["Subtitle"] = "Configure API connection";
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">API Base URL</label>
+                <input asp-for="ApiBaseUrl" class="form-control" />
+                <div class="form-hint">Example: https://localhost:5001</div>
+                <span class="text-danger small" asp-validation-for="ApiBaseUrl"></span>
+            </div>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -21,19 +21,36 @@ public sealed class TransactionLogWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var log in _queue.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            try
+            await foreach (var log in _queue.Reader.ReadAllAsync(stoppingToken))
             {
-                using var scope = _scopeFactory.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<LogsDbContext>();
-                db.TransactionLogs.Add(log);
-                await db.SaveChangesAsync(stoppingToken);
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<LogsDbContext>();
+                    db.TransactionLogs.Add(log);
+                    await db.SaveChangesAsync(stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    return;
+                }
+                catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to persist transaction log");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to persist transaction log");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
+        catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 }

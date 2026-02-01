@@ -36,7 +36,16 @@ public sealed class ListCustomersQueryHandler : IRequestHandler<ListCustomersQue
             }
         }
 
-        var customers = await _customerRepository.ListAsync(pageNumber, pageSize, request.IncludeInactive, cancellationToken);
+        var customers = await _customerRepository.ListAsync(
+            pageNumber,
+            pageSize,
+            orderBy,
+            orderDir,
+            request.Search,
+            request.Email,
+            request.Name,
+            request.IncludeInactive,
+            cancellationToken);
         var fallback = customers.Select(c => new CustomerDto(c.Id, c.Name, c.Email, c.DateOfBirth, c.CreatedAtUtc)).ToList();
         return RequestResult<CursorPaginationResult<CustomerDto>>.Success(
             new CursorPaginationResult<CustomerDto>(fallback, null, pageSize, orderBy, orderDir));

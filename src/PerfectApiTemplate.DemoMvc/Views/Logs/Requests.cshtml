@@ -1,0 +1,80 @@
+@model RequestLogsViewModel
+@{
+    ViewData["Title"] = "Request Logs";
+    ViewData["Subtitle"] = "HTTP request/response activity";
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <input name="StatusCode" value="@Model.Filters.StatusCode" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Path contains</label>
+                <input name="PathContains" value="@Model.Filters.PathContains" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">From (UTC)</label>
+                <input name="FromUtc" value="@(Model.Filters.FromUtc?.ToString("O"))" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">To (UTC)</label>
+                <input name="ToUtc" value="@(Model.Filters.ToUtc?.ToString("O"))" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Page Size</label>
+                <select name="PageSize" class="form-select">
+                    @foreach (var size in new[] { 10, 25, 50 })
+                    {
+                        <option value="@size" selected="@(Model.Filters.PageSize == size)">@size</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-outline-primary" type="submit">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Count == 0)
+                {
+                    <tr><td colspan="5"><div class="empty-state">No request logs.</div></td></tr>
+                }
+                else
+                {
+                    @foreach (var log in Model.Items)
+                    {
+                        <tr>
+                            <td>@log.StartedAtUtc.ToLocalTime().ToString("g")</td>
+                            <td>@log.Method</td>
+                            <td>@log.Path</td>
+                            <td><span class="badge text-bg-light border">@log.StatusCode</span></td>
+                            <td>@log.DurationMs ms</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <div class="text-muted small">Total: @Model.Pagination.TotalCount</div>
+        <partial name="_Pagination" model="Model.Pagination" />
+    </div>
+</div>

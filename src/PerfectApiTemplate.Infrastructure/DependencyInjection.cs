@@ -15,6 +15,7 @@ using PerfectApiTemplate.Application.Abstractions.Logging;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Entities;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Queues;
+using PerfectApiTemplate.Infrastructure.Persistence.Logging.Repositories;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Writers;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Workers;
 
@@ -97,6 +98,9 @@ public static class DependencyInjection
         services.AddSingleton<IRequestLogWriter, RequestLogWriter>();
         services.AddSingleton<IErrorLogWriter, ErrorLogWriter>();
         services.AddSingleton<ITransactionLogWriter, TransactionLogWriter>();
+        services.AddScoped<IRequestLogReadRepository, RequestLogReadRepository>();
+        services.AddScoped<IErrorLogReadRepository, ErrorLogReadRepository>();
+        services.AddScoped<ITransactionLogReadRepository, TransactionLogReadRepository>();
         services.AddHostedService<RequestLogWorker>();
         services.AddHostedService<ErrorLogWorker>();
         services.AddHostedService<TransactionLogWorker>();

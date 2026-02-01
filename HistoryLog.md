@@ -47,3 +47,11 @@
 - Added email send/receive feature with SMTP + IMAP/POP3, queues, processors, endpoints, tests, and migration AddEmailMessaging.
 - Added separate LogsDb with request/error/transaction logging, masking/sampling/retention, and migration AddAuditLoggingTables.
 - Added request id middleware and test coverage for log persistence with separate LogsDb.
+- Added Demo MVC project with UI for customers, email tests, logs, and settings plus new customer CRUD and log read endpoints.
+- Fixed Demo MVC build by adding ErrorViewModel and resolving session extension ambiguity.
+- Handled expected cancellation in EmailOutboxProcessor to avoid noisy TaskCanceledException on shutdown.
+- Handled expected cancellation in OutboxProcessor to avoid TaskCanceledException on shutdown.
+- Handled expected cancellation in EmailInboxProcessor to avoid TaskCanceledException on shutdown.
+- Handled expected cancellation in log workers to avoid OperationCanceledException on shutdown.
+- Fixed logging middleware to resolve ICorrelationContext per request instead of from root provider.
+- Updated Demo MVC default ApiBaseUrl to match API launchSettings port.

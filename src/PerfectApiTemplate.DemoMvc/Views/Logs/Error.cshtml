@@ -1,0 +1,40 @@
+@model ErrorLogDetailViewModel
+@{
+    ViewData["Title"] = "Error Details";
+    ViewData["Subtitle"] = "Review exception context";
+}
+
+@if (Model.Log is null)
+{
+    <div class="empty-state">Error log not found.</div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <h5>@Model.Log.ExceptionType</h5>
+            <p class="text-muted">@Model.Log.Message</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="text-muted small">Path</div>
+                    <div>@Model.Log.Path</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Created</div>
+                    <div>@Model.Log.CreatedAtUtc.ToLocalTime().ToString("g")</div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-muted small">Stack Trace</div>
+                <pre class="bg-light p-3 rounded">@Model.Log.StackTrace</pre>
+            </div>
+            <div class="mt-3">
+                <div class="text-muted small">Request Body</div>
+                <pre class="bg-light p-3 rounded">@Model.Log.RequestBody</pre>
+            </div>
+            <div class="mt-3">
+                <a class="btn btn-light border" asp-action="Errors">Back</a>
+            </div>
+        </div>
+    </div>
+}
