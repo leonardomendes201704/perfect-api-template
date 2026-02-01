@@ -116,3 +116,23 @@ body {
   font-size: 0.8rem;
   color: #64748b;
 }
+
+.grid-table th.sortable .sort-link {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.grid-table th.sortable .sort-link.asc i {
+    transform: rotate(180deg);
+}
+
+.grid-table th.sortable .sort-link:hover {
+    text-decoration: underline;
+}
+
+.grid-filters .form-check {
+    padding-top: 0.4rem;
+}
