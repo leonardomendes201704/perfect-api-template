@@ -61,3 +61,7 @@
 - Updated remaining list views to use GridBuilder (logs lists).
 - Migrated dashboard and UI showcase tables to use GridBuilder.
 - Added Demo MVC login gate and ensured admin seed can reset password from config.
+- Enriched UI Showcase with reusable UI components and patterns.
+- Added reusable UI partials (stat card, info list, empty state, form section) and documented UI checklist.
+- Added reusable QuickLinks partial and applied it to the Dashboard.
+- Added QuickLinks component to UI Showcase and documented component update rule.

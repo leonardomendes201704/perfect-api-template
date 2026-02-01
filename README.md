@@ -41,6 +41,24 @@ Use `GridBuilder<T>` to build reusable list grids with filters, sorting, and act
 <partial name="_Grid" model="grid" />
 ```
 
+### UI component checklist
+Use this checklist as the UI baseline for new features and screens:
+- Page header with title + primary action
+- Breadcrumbs
+- Alerts (success/error/info)
+- Filters + search + sort controls
+- Data grid (GridBuilder) with pagination
+- Empty state (with CTA)
+- Stat cards / KPIs
+- Info list (key/value summary)
+- Quick links
+- Forms with validation states
+- Modals + toasts
+- Tabs or accordion for grouped content
+- Progress + loading indicators
+
+Rule: When creating or modifying any reusable UI component or partial, update the **UI Showcase** page to reflect it.
+
 ## Databases (SQLite)
 This template uses two databases:
 - MainDb: application data (`app.db`)
