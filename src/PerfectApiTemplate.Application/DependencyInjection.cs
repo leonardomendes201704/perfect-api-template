@@ -7,6 +7,7 @@ using PerfectApiTemplate.Application.Features.Notifications;
 using PerfectApiTemplate.Application.Abstractions.Notifications;
 using PerfectApiTemplate.Application.Abstractions.Auth;
 using PerfectApiTemplate.Application.Features.Auth;
+using PerfectApiTemplate.Application.Features.Emails;
 
 namespace PerfectApiTemplate.Application;
 
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IOutboxEnqueuer, OutboxEnqueuer>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

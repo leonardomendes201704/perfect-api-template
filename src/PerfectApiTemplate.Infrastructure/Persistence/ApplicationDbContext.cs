@@ -18,6 +18,9 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<User> Users => Set<User>();
     public DbSet<UserProvider> UserProviders => Set<UserProvider>();
+    public DbSet<EmailMessage> EmailMessages => Set<EmailMessage>();
+    public DbSet<EmailDeliveryAttempt> EmailDeliveryAttempts => Set<EmailDeliveryAttempt>();
+    public DbSet<EmailInboxMessage> EmailInboxMessages => Set<EmailInboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

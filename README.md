@@ -46,6 +46,18 @@ Configuration:
 "Outbox": { "BatchSize": 20, "PollingSeconds": 5 }
 ```
 
+## Email (SMTP + IMAP/POP3)
+Email sending and inbox reading are supported with background processors:
+- `EmailOutboxProcessor` sends queued emails via SMTP.
+- `EmailInboxProcessor` reads new messages via IMAP/POP3 and stores them for tracking.
+
+Endpoints:
+- `POST /api/emails` to enqueue a message.
+- `GET /api/emails` to list sent/queued messages.
+- `GET /api/emails/{id}` to read a message status.
+- `GET /api/emails/inbox` to list inbox messages.
+- `POST /api/emails/inbox/sync` to trigger a manual inbox sync.
+
 ## Key conventions
 - Controllers are thin and call MediatR only.
 - Commands mutate; queries read-only.
@@ -74,6 +86,23 @@ Jwt:Audience                         -> JWT audience
 Jwt:SigningKey                       -> JWT signing key
 Outbox:BatchSize                     -> Outbox processor batch size
 Outbox:PollingSeconds                -> Outbox polling interval in seconds
+Email:Smtp:Host                       -> SMTP host
+Email:Smtp:Port                       -> SMTP port
+Email:Smtp:UseSsl                     -> SMTP SSL toggle
+Email:Smtp:Username                   -> SMTP username
+Email:Smtp:Password                   -> SMTP password
+Email:Smtp:DefaultFrom                -> Default sender address
+Email:Inbox:Protocol                  -> Imap or Pop3
+Email:Inbox:Host                      -> IMAP/POP3 host
+Email:Inbox:Port                      -> IMAP/POP3 port
+Email:Inbox:UseSsl                    -> IMAP/POP3 SSL toggle
+Email:Inbox:Username                  -> IMAP/POP3 username
+Email:Inbox:Password                  -> IMAP/POP3 password
+Email:Inbox:MaxMessagesPerPoll        -> Inbox max messages per polling cycle
+Email:Processing:OutboxPollingSeconds -> Email outbox polling interval in seconds
+Email:Processing:InboxPollingSeconds  -> Email inbox polling interval in seconds
+Email:Processing:BatchSize            -> Email batch size
+Email:Processing:MaxAttempts          -> Email send max attempts
 ExternalAuth:Providers:Google:UserInfoUrl    -> Google user info endpoint
 ExternalAuth:Providers:Facebook:UserInfoUrl  -> Facebook user info endpoint
 ExternalAuth:Providers:LinkedIn:UserInfoUrl  -> LinkedIn user info endpoint

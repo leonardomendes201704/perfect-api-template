@@ -44,3 +44,4 @@
 - Added auditable base entity fields, updated Customers list to support includeInactive, and added migration AddAuditFields.
 - Centralized audit field mappings via AuditableEntityConfiguration base.
 - Added soft delete audit fields and SaveChanges handling with migration AddSoftDeleteFields.
+- Added email send/receive feature with SMTP + IMAP/POP3, queues, processors, endpoints, tests, and migration AddEmailMessaging.

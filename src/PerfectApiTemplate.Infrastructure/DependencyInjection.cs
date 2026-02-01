@@ -8,6 +8,8 @@ using PerfectApiTemplate.Infrastructure.Messaging;
 using PerfectApiTemplate.Application.Abstractions.Notifications;
 using PerfectApiTemplate.Application.Abstractions.Auth;
 using PerfectApiTemplate.Infrastructure.Auth;
+using PerfectApiTemplate.Application.Abstractions.Email;
+using PerfectApiTemplate.Infrastructure.Email;
 
 namespace PerfectApiTemplate.Infrastructure;
 
@@ -39,6 +41,20 @@ public static class DependencyInjection
             options.PollingSeconds = section.GetValue("PollingSeconds", options.PollingSeconds);
         });
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+
+        services.Configure<EmailSmtpOptions>(options =>
+            configuration.GetSection("Email:Smtp").Bind(options));
+        services.Configure<EmailInboxOptions>(options =>
+            configuration.GetSection("Email:Inbox").Bind(options));
+        services.Configure<EmailProcessingOptions>(options =>
+            configuration.GetSection("Email:Processing").Bind(options));
+        services.AddSingleton<IEmailSender, MailKitEmailSender>();
+        services.AddSingleton<IEmailInboxReader, MailKitEmailInboxReader>();
+        services.AddSingleton<IEmailDefaults, EmailDefaultsProvider>();
+        services.AddScoped<IEmailMessageRepository, EmailMessageRepository>();
+        services.AddScoped<IEmailInboxRepository, EmailInboxRepository>();
+        services.AddHostedService<EmailOutboxProcessor>();
+        services.AddHostedService<EmailInboxProcessor>();
 
         return services;
     }
