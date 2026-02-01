@@ -19,6 +19,28 @@ Run the demo UI (server-rendered MVC) that exercises API features:
 
 By default it calls the API at `https://localhost:7263`. Update the base URL from the **Settings** screen or set `ApiBaseUrl` in `src/PerfectApiTemplate.DemoMvc/appsettings.json`.
 
+### GridBuilder example
+Use `GridBuilder<T>` to build reusable list grids with filters, sorting, and actions:
+
+```csharp
+@{
+    var grid = new GridBuilder<CustomerDto>()
+        .WithTitle("Customers")
+        .WithSubtitle($"Total: {Model.Pagination.TotalCount}")
+        .WithPrimaryAction("New Customer", Url.Action("Create", "Customers") ?? "#")
+        .WithItems(Model.Items)
+        .WithPagination(Model.Pagination)
+        .WithQueryOptions(queryOptions)
+        .WithFilters(filters)
+        .AddColumn("Name", item => new HtmlString(HtmlEncoder.Default.Encode(item.Name)), "Name")
+        .AddColumn("Email", item => new HtmlString(HtmlEncoder.Default.Encode(item.Email)), "Email")
+        .AddAction("Details", item => Url.Action("Details", "Customers", new { id = item.Id }))
+        .Build();
+}
+<partial name="_GridFilters" model="grid.Filters" />
+<partial name="_Grid" model="grid" />
+```
+
 ## Databases (SQLite)
 This template uses two databases:
 - MainDb: application data (`app.db`)

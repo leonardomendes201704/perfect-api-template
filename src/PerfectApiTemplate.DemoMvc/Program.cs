@@ -1,3 +1,5 @@
+using PerfectApiTemplate.DemoMvc.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -35,6 +37,29 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
+
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path;
+    if (path.StartsWithSegments("/Auth", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/css", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/js", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/lib", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
+    {
+        await next();
+        return;
+    }
+
+    var token = context.Session.GetStringValue(PerfectApiTemplate.DemoMvc.Infrastructure.SessionKeys.JwtToken);
+    if (string.IsNullOrWhiteSpace(token))
+    {
+        context.Response.Redirect("/Auth/Login");
+        return;
+    }
+
+    await next();
+});
 
 app.UseAuthorization();
 

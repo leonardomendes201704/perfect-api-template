@@ -57,3 +57,7 @@
 - Updated Demo MVC default ApiBaseUrl to match API launchSettings port.
 - Added reusable grid component (filters, sorting, actions) and applied to Customers index.
 - Applied reusable grid component to logs list views (requests, errors, transactions).
+- Added GridBuilder helper and documented usage in README.
+- Updated remaining list views to use GridBuilder (logs lists).
+- Migrated dashboard and UI showcase tables to use GridBuilder.
+- Added Demo MVC login gate and ensured admin seed can reset password from config.

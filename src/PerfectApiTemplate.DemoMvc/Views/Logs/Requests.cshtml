@@ -1,106 +1,69 @@
-@using System.Text.Encodings.Web
+﻿@using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Html
 @model RequestLogsViewModel
 @{
     ViewData["Title"] = "Request Logs";
     ViewData["Subtitle"] = "HTTP request/response activity";
 
-    var grid = new GridViewModel<object>
+    var queryOptions = new GridQueryOptions
     {
-        Title = "Request Logs",
-        Subtitle = $"Total: {Model.Pagination.TotalCount}",
-        Items = Model.Items.Cast<object>().ToList(),
-        Pagination = Model.Pagination,
-        QueryOptions = new GridQueryOptions
+        Action = "Requests",
+        Controller = "Logs",
+        OrderBy = Model.Filters.OrderBy,
+        OrderDir = Model.Filters.OrderDir,
+        PageSize = Model.Filters.PageSize,
+        Query = new Dictionary<string, string?>
         {
-            Action = "Requests",
-            Controller = "Logs",
-            OrderBy = Model.Filters.OrderBy,
-            OrderDir = Model.Filters.OrderDir,
-            PageSize = Model.Filters.PageSize,
-            Query = new Dictionary<string, string?>
-            {
-                ["StatusCode"] = Model.Filters.StatusCode?.ToString(),
-                ["PathContains"] = Model.Filters.PathContains,
-                ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
-                ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
-                ["PageSize"] = Model.Filters.PageSize.ToString()
-            }
-        },
-        Columns = new List<GridColumn<object>>
-        {
-            new()
-            {
-                Header = "Time",
-                SortKey = "StartedAtUtc",
-                Cell = item => new HtmlString(((RequestLogDto)item).StartedAtUtc.ToLocalTime().ToString("g"))
-            },
-            new()
-            {
-                Header = "Method",
-                SortKey = "Method",
-                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((RequestLogDto)item).Method))
-            },
-            new()
-            {
-                Header = "Path",
-                SortKey = "Path",
-                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((RequestLogDto)item).Path))
-            },
-            new()
-            {
-                Header = "Status",
-                SortKey = "StatusCode",
-                Cell = item => new HtmlString($"<span class=\"badge text-bg-light border\">{((RequestLogDto)item).StatusCode}</span>")
-            },
-            new()
-            {
-                Header = "Duration",
-                SortKey = "DurationMs",
-                Cell = item => new HtmlString($"{((RequestLogDto)item).DurationMs} ms")
-            }
-        },
-        Filters = new GridFilterViewModel
-        {
-            Action = "Requests",
-            Controller = "Logs",
-            Fields = new List<GridFilterField>
-            {
-                new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
-                new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
-                new() { Label = "Status", Name = "StatusCode", Value = Model.Filters.StatusCode?.ToString() },
-                new() { Label = "Path contains", Name = "PathContains", Value = Model.Filters.PathContains },
-                new()
-                {
-                    Label = "From (UTC)",
-                    Name = "FromUtc",
-                    Type = GridFilterType.Date,
-                    Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd")
-                },
-                new()
-                {
-                    Label = "To (UTC)",
-                    Name = "ToUtc",
-                    Type = GridFilterType.Date,
-                    Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd")
-                },
-                new()
-                {
-                    Label = "Page Size",
-                    Name = "PageSize",
-                    Type = GridFilterType.Select,
-                    Options = new List<GridSelectOption>
-                    {
-                        new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
-                        new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
-                        new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
-                    }
-                }
-            },
-            ShowReset = true,
-            ResetUrl = Url.Action("Requests", "Logs")
+            ["StatusCode"] = Model.Filters.StatusCode?.ToString(),
+            ["PathContains"] = Model.Filters.PathContains,
+            ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
+            ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
+            ["PageSize"] = Model.Filters.PageSize.ToString()
         }
     };
+
+    var filters = new GridFilterViewModel
+    {
+        Action = "Requests",
+        Controller = "Logs",
+        Fields = new List<GridFilterField>
+        {
+            new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
+            new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
+            new() { Label = "Status", Name = "StatusCode", Value = Model.Filters.StatusCode?.ToString() },
+            new() { Label = "Path contains", Name = "PathContains", Value = Model.Filters.PathContains },
+            new() { Label = "From (UTC)", Name = "FromUtc", Type = GridFilterType.Date, Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd") },
+            new() { Label = "To (UTC)", Name = "ToUtc", Type = GridFilterType.Date, Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd") },
+            new()
+            {
+                Label = "Page Size",
+                Name = "PageSize",
+                Type = GridFilterType.Select,
+                Options = new List<GridSelectOption>
+                {
+                    new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
+                    new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
+                    new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
+                }
+            }
+        },
+        ShowReset = true,
+        ResetUrl = Url.Action("Requests", "Logs")
+    };
+
+    var grid = new GridBuilder<RequestLogDto>()
+        .WithTitle("Request Logs")
+        .WithSubtitle($"Total: {Model.Pagination.TotalCount}")
+        .WithItems(Model.Items)
+        .WithPagination(Model.Pagination)
+        .WithQueryOptions(queryOptions)
+        .WithFilters(filters)
+        .AddColumn("Time", item => new HtmlString(item.StartedAtUtc.ToLocalTime().ToString("g")), "StartedAtUtc")
+        .AddColumn("Method", item => new HtmlString(HtmlEncoder.Default.Encode(item.Method)), "Method")
+        .AddColumn("Path", item => new HtmlString(HtmlEncoder.Default.Encode(item.Path)), "Path")
+        .AddColumn("Status", item => new HtmlString($"<span class=\"badge text-bg-light border\">{item.StatusCode}</span>"), "StatusCode")
+        .AddColumn("Duration", item => new HtmlString($"{item.DurationMs} ms"), "DurationMs")
+        .Build();
 }
 
 @if (grid.Filters is not null)

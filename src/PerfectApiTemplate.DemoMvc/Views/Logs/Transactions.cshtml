@@ -1,109 +1,69 @@
-@using System.Text.Encodings.Web
+﻿@using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Html
 @model TransactionLogsViewModel
 @{
     ViewData["Title"] = "Transaction Logs";
     ViewData["Subtitle"] = "Entity changes with before/after snapshots";
 
-    var grid = new GridViewModel<object>
+    var queryOptions = new GridQueryOptions
     {
-        Title = "Transaction Logs",
-        Subtitle = $"Total: {Model.Pagination.TotalCount}",
-        Items = Model.Items.Cast<object>().ToList(),
-        Pagination = Model.Pagination,
-        QueryOptions = new GridQueryOptions
+        Action = "Transactions",
+        Controller = "Logs",
+        OrderBy = Model.Filters.OrderBy,
+        OrderDir = Model.Filters.OrderDir,
+        PageSize = Model.Filters.PageSize,
+        Query = new Dictionary<string, string?>
         {
-            Action = "Transactions",
-            Controller = "Logs",
-            OrderBy = Model.Filters.OrderBy,
-            OrderDir = Model.Filters.OrderDir,
-            PageSize = Model.Filters.PageSize,
-            Query = new Dictionary<string, string?>
-            {
-                ["EntityName"] = Model.Filters.EntityName,
-                ["Operation"] = Model.Filters.Operation,
-                ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
-                ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
-                ["PageSize"] = Model.Filters.PageSize.ToString()
-            }
-        },
-        Columns = new List<GridColumn<object>>
-        {
-            new()
-            {
-                Header = "Time",
-                SortKey = "CreatedAtUtc",
-                Cell = item => new HtmlString(((TransactionLogDto)item).CreatedAtUtc.ToLocalTime().ToString("g"))
-            },
-            new()
-            {
-                Header = "Entity",
-                SortKey = "EntityName",
-                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((TransactionLogDto)item).EntityName))
-            },
-            new()
-            {
-                Header = "Operation",
-                SortKey = "Operation",
-                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((TransactionLogDto)item).Operation))
-            },
-            new()
-            {
-                Header = "Entity Id",
-                SortKey = "EntityId",
-                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((TransactionLogDto)item).EntityId ?? string.Empty))
-            }
-        },
-        RowActions = new List<GridRowAction<object>>
-        {
-            new()
-            {
-                Text = "Details",
-                CssClass = "btn btn-sm btn-outline-secondary",
-                Url = item => Url.Action("Transaction", "Logs", new { id = ((TransactionLogDto)item).Id })
-            }
-        },
-        Filters = new GridFilterViewModel
-        {
-            Action = "Transactions",
-            Controller = "Logs",
-            Fields = new List<GridFilterField>
-            {
-                new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
-                new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
-                new() { Label = "Entity", Name = "EntityName", Value = Model.Filters.EntityName },
-                new() { Label = "Operation", Name = "Operation", Value = Model.Filters.Operation },
-                new()
-                {
-                    Label = "From (UTC)",
-                    Name = "FromUtc",
-                    Type = GridFilterType.Date,
-                    Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd")
-                },
-                new()
-                {
-                    Label = "To (UTC)",
-                    Name = "ToUtc",
-                    Type = GridFilterType.Date,
-                    Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd")
-                },
-                new()
-                {
-                    Label = "Page Size",
-                    Name = "PageSize",
-                    Type = GridFilterType.Select,
-                    Options = new List<GridSelectOption>
-                    {
-                        new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
-                        new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
-                        new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
-                    }
-                }
-            },
-            ShowReset = true,
-            ResetUrl = Url.Action("Transactions", "Logs")
+            ["EntityName"] = Model.Filters.EntityName,
+            ["Operation"] = Model.Filters.Operation,
+            ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
+            ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
+            ["PageSize"] = Model.Filters.PageSize.ToString()
         }
     };
+
+    var filters = new GridFilterViewModel
+    {
+        Action = "Transactions",
+        Controller = "Logs",
+        Fields = new List<GridFilterField>
+        {
+            new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
+            new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
+            new() { Label = "Entity", Name = "EntityName", Value = Model.Filters.EntityName },
+            new() { Label = "Operation", Name = "Operation", Value = Model.Filters.Operation },
+            new() { Label = "From (UTC)", Name = "FromUtc", Type = GridFilterType.Date, Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd") },
+            new() { Label = "To (UTC)", Name = "ToUtc", Type = GridFilterType.Date, Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd") },
+            new()
+            {
+                Label = "Page Size",
+                Name = "PageSize",
+                Type = GridFilterType.Select,
+                Options = new List<GridSelectOption>
+                {
+                    new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
+                    new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
+                    new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
+                }
+            }
+        },
+        ShowReset = true,
+        ResetUrl = Url.Action("Transactions", "Logs")
+    };
+
+    var grid = new GridBuilder<TransactionLogDto>()
+        .WithTitle("Transaction Logs")
+        .WithSubtitle($"Total: {Model.Pagination.TotalCount}")
+        .WithItems(Model.Items)
+        .WithPagination(Model.Pagination)
+        .WithQueryOptions(queryOptions)
+        .WithFilters(filters)
+        .AddColumn("Time", item => new HtmlString(item.CreatedAtUtc.ToLocalTime().ToString("g")), "CreatedAtUtc")
+        .AddColumn("Entity", item => new HtmlString(HtmlEncoder.Default.Encode(item.EntityName)), "EntityName")
+        .AddColumn("Operation", item => new HtmlString(HtmlEncoder.Default.Encode(item.Operation)), "Operation")
+        .AddColumn("Entity Id", item => new HtmlString(HtmlEncoder.Default.Encode(item.EntityId ?? string.Empty)), "EntityId")
+        .AddAction("Details", item => Url.Action("Transaction", "Logs", new { id = item.Id }))
+        .Build();
 }
 
 @if (grid.Filters is not null)

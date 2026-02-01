@@ -1,105 +1,70 @@
-@using System.Text.Encodings.Web
+﻿@using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Html
 @model ErrorLogsViewModel
 @{
     ViewData["Title"] = "Error Logs";
     ViewData["Subtitle"] = "Unhandled exceptions captured by the API";
 
-    var grid = new GridViewModel<object>
+    var queryOptions = new GridQueryOptions
     {
-        Title = "Error Logs",
-        Subtitle = $"Total: {Model.Pagination.TotalCount}",
-        Items = Model.Items.Cast<object>().ToList(),
-        Pagination = Model.Pagination,
-        QueryOptions = new GridQueryOptions
+        Action = "Errors",
+        Controller = "Logs",
+        OrderBy = Model.Filters.OrderBy,
+        OrderDir = Model.Filters.OrderDir,
+        PageSize = Model.Filters.PageSize,
+        Query = new Dictionary<string, string?>
         {
-            Action = "Errors",
-            Controller = "Logs",
-            OrderBy = Model.Filters.OrderBy,
-            OrderDir = Model.Filters.OrderDir,
-            PageSize = Model.Filters.PageSize,
-            Query = new Dictionary<string, string?>
-            {
-                ["ExceptionType"] = Model.Filters.ExceptionType,
-                ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
-                ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
-                ["PageSize"] = Model.Filters.PageSize.ToString()
-            }
-        },
-        Columns = new List<GridColumn<object>>
-        {
-            new()
-            {
-                Header = "Time",
-                SortKey = "CreatedAtUtc",
-                Cell = item => new HtmlString(((ErrorLogDto)item).CreatedAtUtc.ToLocalTime().ToString("g"))
-            },
-            new()
-            {
-                Header = "Type",
-                SortKey = "ExceptionType",
-                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((ErrorLogDto)item).ExceptionType))
-            },
-            new()
-            {
-                Header = "Message",
-                SortKey = "Message",
-                Cell = item =>
-                {
-                    var message = HtmlEncoder.Default.Encode(((ErrorLogDto)item).Message);
-                    return new HtmlString($"<span class=\"text-truncate d-inline-block\" style=\"max-width: 260px;\">{message}</span>");
-                }
-            }
-        },
-        RowActions = new List<GridRowAction<object>>
-        {
-            new()
-            {
-                Text = "Details",
-                CssClass = "btn btn-sm btn-outline-secondary",
-                Url = item => Url.Action("Error", "Logs", new { id = ((ErrorLogDto)item).Id })
-            }
-        },
-        Filters = new GridFilterViewModel
-        {
-            Action = "Errors",
-            Controller = "Logs",
-            Fields = new List<GridFilterField>
-            {
-                new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
-                new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
-                new() { Label = "Exception type", Name = "ExceptionType", Value = Model.Filters.ExceptionType },
-                new()
-                {
-                    Label = "From (UTC)",
-                    Name = "FromUtc",
-                    Type = GridFilterType.Date,
-                    Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd")
-                },
-                new()
-                {
-                    Label = "To (UTC)",
-                    Name = "ToUtc",
-                    Type = GridFilterType.Date,
-                    Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd")
-                },
-                new()
-                {
-                    Label = "Page Size",
-                    Name = "PageSize",
-                    Type = GridFilterType.Select,
-                    Options = new List<GridSelectOption>
-                    {
-                        new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
-                        new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
-                        new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
-                    }
-                }
-            },
-            ShowReset = true,
-            ResetUrl = Url.Action("Errors", "Logs")
+            ["ExceptionType"] = Model.Filters.ExceptionType,
+            ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
+            ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
+            ["PageSize"] = Model.Filters.PageSize.ToString()
         }
     };
+
+    var filters = new GridFilterViewModel
+    {
+        Action = "Errors",
+        Controller = "Logs",
+        Fields = new List<GridFilterField>
+        {
+            new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
+            new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
+            new() { Label = "Exception type", Name = "ExceptionType", Value = Model.Filters.ExceptionType },
+            new() { Label = "From (UTC)", Name = "FromUtc", Type = GridFilterType.Date, Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd") },
+            new() { Label = "To (UTC)", Name = "ToUtc", Type = GridFilterType.Date, Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd") },
+            new()
+            {
+                Label = "Page Size",
+                Name = "PageSize",
+                Type = GridFilterType.Select,
+                Options = new List<GridSelectOption>
+                {
+                    new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
+                    new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
+                    new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
+                }
+            }
+        },
+        ShowReset = true,
+        ResetUrl = Url.Action("Errors", "Logs")
+    };
+
+    var grid = new GridBuilder<ErrorLogDto>()
+        .WithTitle("Error Logs")
+        .WithSubtitle($"Total: {Model.Pagination.TotalCount}")
+        .WithItems(Model.Items)
+        .WithPagination(Model.Pagination)
+        .WithQueryOptions(queryOptions)
+        .WithFilters(filters)
+        .AddColumn("Time", item => new HtmlString(item.CreatedAtUtc.ToLocalTime().ToString("g")), "CreatedAtUtc")
+        .AddColumn("Type", item => new HtmlString(HtmlEncoder.Default.Encode(item.ExceptionType)), "ExceptionType")
+        .AddColumn("Message", item =>
+        {
+            var message = HtmlEncoder.Default.Encode(item.Message);
+            return new HtmlString($"<span class=\"text-truncate d-inline-block\" style=\"max-width: 260px;\">{message}</span>");
+        }, "Message")
+        .AddAction("Details", item => Url.Action("Error", "Logs", new { id = item.Id }))
+        .Build();
 }
 
 @if (grid.Filters is not null)

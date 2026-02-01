@@ -1,7 +1,74 @@
+﻿@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Html
 @model DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
     ViewData["Subtitle"] = "Overview of API health and recent activity";
+
+    var requestPageSize = Math.Max(Model.RecentRequests.Count, 1);
+    var requestPagination = new PaginationViewModel
+    {
+        PageNumber = 1,
+        PageSize = requestPageSize,
+        TotalCount = Model.RecentRequests.Count,
+        Action = "Requests",
+        Controller = "Logs"
+    };
+
+    var requestQueryOptions = new GridQueryOptions
+    {
+        Action = "Requests",
+        Controller = "Logs",
+        PageSize = requestPageSize
+    };
+
+    var requestGrid = new GridBuilder<RequestLogDto>()
+        .WithTitle("Recent Requests")
+        .WithSubtitle(Model.RecentRequests.Count == 0 ? "No request logs yet." : $"Total: {Model.RecentRequests.Count}")
+        .WithItems(Model.RecentRequests)
+        .WithPagination(requestPagination)
+        .WithQueryOptions(requestQueryOptions)
+        .WithEmptyMessage("No request logs yet.")
+        .WithTableCssClass("table table-sm align-middle mb-0 grid-table")
+        .AddColumn("Time", item => new HtmlString(item.StartedAtUtc.ToLocalTime().ToString("g")))
+        .AddColumn("Method", item => new HtmlString(HtmlEncoder.Default.Encode(item.Method)))
+        .AddColumn("Path", item => new HtmlString(HtmlEncoder.Default.Encode(item.Path)))
+        .AddColumn("Status", item => new HtmlString($"<span class=\"badge text-bg-light border\">{item.StatusCode}</span>"))
+        .Build();
+
+    var errorPageSize = Math.Max(Model.RecentErrors.Count, 1);
+    var errorPagination = new PaginationViewModel
+    {
+        PageNumber = 1,
+        PageSize = errorPageSize,
+        TotalCount = Model.RecentErrors.Count,
+        Action = "Errors",
+        Controller = "Logs"
+    };
+
+    var errorQueryOptions = new GridQueryOptions
+    {
+        Action = "Errors",
+        Controller = "Logs",
+        PageSize = errorPageSize
+    };
+
+    var errorGrid = new GridBuilder<ErrorLogDto>()
+        .WithTitle("Recent Errors")
+        .WithSubtitle(Model.RecentErrors.Count == 0 ? "No errors logged." : $"Total: {Model.RecentErrors.Count}")
+        .WithItems(Model.RecentErrors)
+        .WithPagination(errorPagination)
+        .WithQueryOptions(errorQueryOptions)
+        .WithEmptyMessage("No errors logged.")
+        .WithTableCssClass("table table-sm align-middle mb-0 grid-table")
+        .AddColumn("Time", item => new HtmlString(item.CreatedAtUtc.ToLocalTime().ToString("g")))
+        .AddColumn("Type", item => new HtmlString(HtmlEncoder.Default.Encode(item.ExceptionType)))
+        .AddColumn("Message", item =>
+        {
+            var message = HtmlEncoder.Default.Encode(item.Message);
+            return new HtmlString($"<span class=\"text-truncate d-inline-block\" style=\"max-width: 240px;\">{message}</span>");
+        })
+        .Build();
 }
 
 <div class="row g-3 mb-4">
@@ -36,79 +103,13 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-muted small">Recent Requests</div>
-                @if (Model.RecentRequests.Count == 0)
-                {
-                    <div class="empty-state mt-3">No request logs yet.</div>
-                }
-                else
-                {
-                    <div class="table-responsive mt-2">
-                        <table class="table table-sm align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Method</th>
-                                    <th>Path</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var log in Model.RecentRequests)
-                                {
-                                    <tr>
-                                        <td>@log.StartedAtUtc.ToLocalTime().ToString("g")</td>
-                                        <td>@log.Method</td>
-                                        <td>@log.Path</td>
-                                        <td><span class="badge text-bg-light border">@log.StatusCode</span></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
+        <partial name="_Grid" model="requestGrid" />
     </div>
 </div>
 
 <div class="row g-3">
     <div class="col-lg-8">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-muted small">Recent Errors</div>
-                @if (Model.RecentErrors.Count == 0)
-                {
-                    <div class="empty-state mt-3">No errors logged.</div>
-                }
-                else
-                {
-                    <div class="table-responsive mt-2">
-                        <table class="table table-sm align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Type</th>
-                                    <th>Message</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var log in Model.RecentErrors)
-                                {
-                                    <tr>
-                                        <td>@log.CreatedAtUtc.ToLocalTime().ToString("g")</td>
-                                        <td>@log.ExceptionType</td>
-                                        <td class="text-truncate" style="max-width: 240px;">@log.Message</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
+        <partial name="_Grid" model="errorGrid" />
     </div>
     <div class="col-lg-4">
         <div class="card">

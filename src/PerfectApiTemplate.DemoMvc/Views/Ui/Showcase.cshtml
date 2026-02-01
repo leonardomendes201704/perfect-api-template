@@ -1,6 +1,49 @@
+﻿@using Microsoft.AspNetCore.Html
+@model object
+@functions {
+    private sealed record ShowcaseRow(string Name, string Status, string Updated);
+}
 @{
     ViewData["Title"] = "UI Showcase";
     ViewData["Subtitle"] = "Reusable components for future screens";
+
+    var rows = new List<ShowcaseRow>
+    {
+        new("Alpha", "Active", "Just now"),
+        new("Beta", "Paused", "2 hours ago")
+    };
+
+    var pagination = new PaginationViewModel
+    {
+        PageNumber = 1,
+        PageSize = rows.Count,
+        TotalCount = rows.Count,
+        Action = "Showcase",
+        Controller = "Ui"
+    };
+
+    var queryOptions = new GridQueryOptions
+    {
+        Action = "Showcase",
+        Controller = "Ui",
+        PageSize = rows.Count
+    };
+
+    var grid = new GridBuilder<ShowcaseRow>()
+        .WithTitle("Tables")
+        .WithSubtitle("Sample table using GridBuilder")
+        .WithItems(rows)
+        .WithPagination(pagination)
+        .WithQueryOptions(queryOptions)
+        .WithTableCssClass("table align-middle mb-0 grid-table")
+        .AddColumn("Name", item => new HtmlString(item.Name))
+        .AddColumn("Status", item =>
+        {
+            var badgeClass = item.Status == "Active" ? "text-bg-success" : "text-bg-secondary";
+            return new HtmlString($"<span class=\"badge {badgeClass}\">{item.Status}</span>");
+        })
+        .AddColumn("Updated", item => new HtmlString(item.Updated))
+        .Build();
 }
 
 <div class="row g-4">
@@ -38,32 +81,7 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <h6>Tables</h6>
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Updated</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Alpha</td>
-                            <td><span class="badge text-bg-success">Active</span></td>
-                            <td>Just now</td>
-                        </tr>
-                        <tr>
-                            <td>Beta</td>
-                            <td><span class="badge text-bg-secondary">Paused</span></td>
-                            <td>2 hours ago</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <partial name="_Grid" model="grid" />
         <div class="card mt-4">
             <div class="card-body">
                 <h6>Modal</h6>

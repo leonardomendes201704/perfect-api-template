@@ -39,6 +39,14 @@ public sealed class AdminUserSeeder
         var existing = await _userRepository.GetByEmailAsync(email, cancellationToken);
         if (existing is not null)
         {
+            if (!_passwordHasher.Verify(existing.PasswordHash, password))
+            {
+                existing.PasswordHash = _passwordHasher.Hash(password);
+                existing.IsActive = true;
+                await _userRepository.UpdateAsync(existing, cancellationToken);
+                _logger.LogInformation("Admin user password updated from configuration: {Email}", existing.Email);
+            }
+
             return;
         }
 
