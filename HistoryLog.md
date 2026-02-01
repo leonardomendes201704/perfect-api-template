@@ -69,3 +69,4 @@
 - Moved SQLite databases to App_Data to keep data stable across runs.
 - Added automatic EF Core migrations on startup for MainDb and LogsDb.
 - Added migration SyncModel for ApplicationDbContext to resolve pending model changes.
+- Added App_Data to .gitignore to prevent database files from being tracked.
