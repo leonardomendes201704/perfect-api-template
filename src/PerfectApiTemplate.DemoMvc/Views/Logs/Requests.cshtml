@@ -1,80 +1,111 @@
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Html
 @model RequestLogsViewModel
 @{
     ViewData["Title"] = "Request Logs";
     ViewData["Subtitle"] = "HTTP request/response activity";
+
+    var grid = new GridViewModel<object>
+    {
+        Title = "Request Logs",
+        Subtitle = $"Total: {Model.Pagination.TotalCount}",
+        Items = Model.Items.Cast<object>().ToList(),
+        Pagination = Model.Pagination,
+        QueryOptions = new GridQueryOptions
+        {
+            Action = "Requests",
+            Controller = "Logs",
+            OrderBy = Model.Filters.OrderBy,
+            OrderDir = Model.Filters.OrderDir,
+            PageSize = Model.Filters.PageSize,
+            Query = new Dictionary<string, string?>
+            {
+                ["StatusCode"] = Model.Filters.StatusCode?.ToString(),
+                ["PathContains"] = Model.Filters.PathContains,
+                ["FromUtc"] = Model.Filters.FromUtc?.ToString("O"),
+                ["ToUtc"] = Model.Filters.ToUtc?.ToString("O"),
+                ["PageSize"] = Model.Filters.PageSize.ToString()
+            }
+        },
+        Columns = new List<GridColumn<object>>
+        {
+            new()
+            {
+                Header = "Time",
+                SortKey = "StartedAtUtc",
+                Cell = item => new HtmlString(((RequestLogDto)item).StartedAtUtc.ToLocalTime().ToString("g"))
+            },
+            new()
+            {
+                Header = "Method",
+                SortKey = "Method",
+                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((RequestLogDto)item).Method))
+            },
+            new()
+            {
+                Header = "Path",
+                SortKey = "Path",
+                Cell = item => new HtmlString(HtmlEncoder.Default.Encode(((RequestLogDto)item).Path))
+            },
+            new()
+            {
+                Header = "Status",
+                SortKey = "StatusCode",
+                Cell = item => new HtmlString($"<span class=\"badge text-bg-light border\">{((RequestLogDto)item).StatusCode}</span>")
+            },
+            new()
+            {
+                Header = "Duration",
+                SortKey = "DurationMs",
+                Cell = item => new HtmlString($"{((RequestLogDto)item).DurationMs} ms")
+            }
+        },
+        Filters = new GridFilterViewModel
+        {
+            Action = "Requests",
+            Controller = "Logs",
+            Fields = new List<GridFilterField>
+            {
+                new() { Name = "OrderBy", Value = Model.Filters.OrderBy, IsHidden = true },
+                new() { Name = "OrderDir", Value = Model.Filters.OrderDir, IsHidden = true },
+                new() { Label = "Status", Name = "StatusCode", Value = Model.Filters.StatusCode?.ToString() },
+                new() { Label = "Path contains", Name = "PathContains", Value = Model.Filters.PathContains },
+                new()
+                {
+                    Label = "From (UTC)",
+                    Name = "FromUtc",
+                    Type = GridFilterType.Date,
+                    Value = Model.Filters.FromUtc?.ToString("yyyy-MM-dd")
+                },
+                new()
+                {
+                    Label = "To (UTC)",
+                    Name = "ToUtc",
+                    Type = GridFilterType.Date,
+                    Value = Model.Filters.ToUtc?.ToString("yyyy-MM-dd")
+                },
+                new()
+                {
+                    Label = "Page Size",
+                    Name = "PageSize",
+                    Type = GridFilterType.Select,
+                    Options = new List<GridSelectOption>
+                    {
+                        new() { Value = "10", Text = "10", Selected = Model.Filters.PageSize == 10 },
+                        new() { Value = "25", Text = "25", Selected = Model.Filters.PageSize == 25 },
+                        new() { Value = "50", Text = "50", Selected = Model.Filters.PageSize == 50 }
+                    }
+                }
+            },
+            ShowReset = true,
+            ResetUrl = Url.Action("Requests", "Logs")
+        }
+    };
 }
 
-<div class="card mb-3">
-    <div class="card-body">
-        <form method="get" class="row g-2">
-            <div class="col-md-2">
-                <label class="form-label">Status</label>
-                <input name="StatusCode" value="@Model.Filters.StatusCode" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Path contains</label>
-                <input name="PathContains" value="@Model.Filters.PathContains" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">From (UTC)</label>
-                <input name="FromUtc" value="@(Model.Filters.FromUtc?.ToString("O"))" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">To (UTC)</label>
-                <input name="ToUtc" value="@(Model.Filters.ToUtc?.ToString("O"))" class="form-control" />
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Page Size</label>
-                <select name="PageSize" class="form-select">
-                    @foreach (var size in new[] { 10, 25, 50 })
-                    {
-                        <option value="@size" selected="@(Model.Filters.PageSize == size)">@size</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-2 d-grid">
-                <label class="form-label">&nbsp;</label>
-                <button class="btn btn-outline-primary" type="submit">Filter</button>
-            </div>
-        </form>
-    </div>
-</div>
+@if (grid.Filters is not null)
+{
+    <partial name="_GridFilters" model="grid.Filters" />
+}
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Method</th>
-                    <th>Path</th>
-                    <th>Status</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Items.Count == 0)
-                {
-                    <tr><td colspan="5"><div class="empty-state">No request logs.</div></td></tr>
-                }
-                else
-                {
-                    @foreach (var log in Model.Items)
-                    {
-                        <tr>
-                            <td>@log.StartedAtUtc.ToLocalTime().ToString("g")</td>
-                            <td>@log.Method</td>
-                            <td>@log.Path</td>
-                            <td><span class="badge text-bg-light border">@log.StatusCode</span></td>
-                            <td>@log.DurationMs ms</td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer d-flex justify-content-between align-items-center">
-        <div class="text-muted small">Total: @Model.Pagination.TotalCount</div>
-        <partial name="_Pagination" model="Model.Pagination" />
-    </div>
-</div>
+<partial name="_Grid" model="grid" />

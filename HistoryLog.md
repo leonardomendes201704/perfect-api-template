@@ -56,3 +56,4 @@
 - Fixed logging middleware to resolve ICorrelationContext per request instead of from root provider.
 - Updated Demo MVC default ApiBaseUrl to match API launchSettings port.
 - Added reusable grid component (filters, sorting, actions) and applied to Customers index.
+- Applied reusable grid component to logs list views (requests, errors, transactions).
