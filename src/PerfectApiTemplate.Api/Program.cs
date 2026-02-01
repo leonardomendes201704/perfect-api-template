@@ -4,6 +4,7 @@ using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PerfectApiTemplate.Api.Middleware;
@@ -231,6 +232,12 @@ if (app.Environment.IsEnvironment("Testing"))
 
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<PerfectApiTemplate.Infrastructure.Persistence.ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+
+    var logsDb = scope.ServiceProvider.GetRequiredService<PerfectApiTemplate.Infrastructure.Persistence.Logging.LogsDbContext>();
+    await logsDb.Database.MigrateAsync();
+
     var seeder = scope.ServiceProvider.GetRequiredService<PerfectApiTemplate.Infrastructure.Auth.AdminUserSeeder>();
     await seeder.SeedAsync();
 }

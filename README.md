@@ -61,8 +61,8 @@ Rule: When creating or modifying any reusable UI component or partial, update th
 
 ## Databases (SQLite)
 This template uses two databases:
-- MainDb: application data (`app.db`)
-- LogsDb: request/error/transaction logs (`logs.db`)
+- MainDb: application data (`App_Data/app.db`)
+- LogsDb: request/error/transaction logs (`App_Data/logs.db`)
 
 ### Migrations
 ```bash
@@ -158,8 +158,8 @@ Notes:
 Keep this section in sync with `appsettings.json` and `appsettings.Development.json`.
 
 ```
-ConnectionStrings:MainDb             -> SQLite connection string (e.g., Data Source=app.db)
-ConnectionStrings:LogsDb             -> Logs SQLite connection string (e.g., Data Source=logs.db)
+ConnectionStrings:MainDb             -> SQLite connection string (e.g., Data Source=App_Data/app.db)
+ConnectionStrings:LogsDb             -> Logs SQLite connection string (e.g., Data Source=App_Data/logs.db)
 Jwt:Issuer                           -> JWT issuer
 Jwt:Audience                         -> JWT audience
 Jwt:SigningKey                       -> JWT signing key

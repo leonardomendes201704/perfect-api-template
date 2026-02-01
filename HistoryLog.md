@@ -66,3 +66,6 @@
 - Added reusable QuickLinks partial and applied it to the Dashboard.
 - Added QuickLinks component to UI Showcase and documented component update rule.
 - Added Demo MVC agent guidelines and per-folder agent.md files for frontend.
+- Moved SQLite databases to App_Data to keep data stable across runs.
+- Added automatic EF Core migrations on startup for MainDb and LogsDb.
+- Added migration SyncModel for ApplicationDbContext to resolve pending model changes.
