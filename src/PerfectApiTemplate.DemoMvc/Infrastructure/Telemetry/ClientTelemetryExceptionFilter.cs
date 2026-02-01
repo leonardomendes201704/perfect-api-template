@@ -9,25 +9,25 @@ public sealed class ClientTelemetryExceptionFilter : IExceptionFilter
     private readonly IClientCorrelationContext _correlationContext;
     private readonly IWebHostEnvironment _environment;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ClientTelemetryOptions _options;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> _options;
 
     public ClientTelemetryExceptionFilter(
         IClientTelemetryDispatcher dispatcher,
         IClientCorrelationContext correlationContext,
         IWebHostEnvironment environment,
         IHttpContextAccessor httpContextAccessor,
-        Microsoft.Extensions.Options.IOptions<ClientTelemetryOptions> options)
+        Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> options)
     {
         _dispatcher = dispatcher;
         _correlationContext = correlationContext;
         _environment = environment;
         _httpContextAccessor = httpContextAccessor;
-        _options = options.Value;
+        _options = options;
     }
 
     public void OnException(ExceptionContext context)
     {
-        if (!_options.Enabled)
+        if (!_options.CurrentValue.Enabled)
         {
             return;
         }

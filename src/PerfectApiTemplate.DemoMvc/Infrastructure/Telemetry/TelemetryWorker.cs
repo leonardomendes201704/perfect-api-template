@@ -7,7 +7,7 @@ public sealed class TelemetryWorker : BackgroundService
 {
     private readonly ClientTelemetryQueue _queue;
     private readonly TelemetryApiClient _client;
-    private readonly ClientTelemetryOptions _options;
+    private readonly IOptionsMonitor<ClientTelemetryOptions> _options;
     private readonly ILogger<TelemetryWorker> _logger;
     private int _failureCount;
     private DateTimeOffset? _circuitOpenUntil;
@@ -15,12 +15,12 @@ public sealed class TelemetryWorker : BackgroundService
     public TelemetryWorker(
         ClientTelemetryQueue queue,
         TelemetryApiClient client,
-        IOptions<ClientTelemetryOptions> options,
+        IOptionsMonitor<ClientTelemetryOptions> options,
         ILogger<TelemetryWorker> logger)
     {
         _queue = queue;
         _client = client;
-        _options = options.Value;
+        _options = options;
         _logger = logger;
     }
 
@@ -38,14 +38,14 @@ public sealed class TelemetryWorker : BackgroundService
                     continue;
                 }
 
-                while (buffer.Count < _options.BatchSize && _queue.Reader.TryRead(out var item))
+                while (buffer.Count < _options.CurrentValue.BatchSize && _queue.Reader.TryRead(out var item))
                 {
                     buffer.Add(item);
                 }
 
                 if (buffer.Count == 0)
                 {
-                    var delay = Task.Delay(_options.FlushIntervalMs, stoppingToken);
+                    var delay = Task.Delay(_options.CurrentValue.FlushIntervalMs, stoppingToken);
                     var readTask = _queue.Reader.WaitToReadAsync(stoppingToken).AsTask();
                     await Task.WhenAny(delay, readTask);
                     continue;
@@ -80,7 +80,7 @@ public sealed class TelemetryWorker : BackgroundService
 
     private async Task<bool> SendWithRetryAsync(ClientTelemetryEvent telemetryEvent, CancellationToken cancellationToken)
     {
-        for (var attempt = 0; attempt <= _options.RetryCount; attempt++)
+        for (var attempt = 0; attempt <= _options.CurrentValue.RetryCount; attempt++)
         {
             var success = await _client.SendAsync(telemetryEvent, cancellationToken);
             if (success)
@@ -89,7 +89,7 @@ public sealed class TelemetryWorker : BackgroundService
                 return true;
             }
 
-            if (attempt < _options.RetryCount)
+            if (attempt < _options.CurrentValue.RetryCount)
             {
                 await Task.Delay(200 * (attempt + 1), cancellationToken);
             }
@@ -101,10 +101,10 @@ public sealed class TelemetryWorker : BackgroundService
     private void RegisterFailure()
     {
         _failureCount++;
-        if (_failureCount >= _options.CircuitBreaker.FailureThreshold)
+        if (_failureCount >= _options.CurrentValue.CircuitBreaker.FailureThreshold)
         {
-            _circuitOpenUntil = DateTimeOffset.UtcNow.AddSeconds(_options.CircuitBreaker.BreakDurationSeconds);
-            _logger.LogWarning("Telemetry circuit breaker opened for {Seconds}s", _options.CircuitBreaker.BreakDurationSeconds);
+            _circuitOpenUntil = DateTimeOffset.UtcNow.AddSeconds(_options.CurrentValue.CircuitBreaker.BreakDurationSeconds);
+            _logger.LogWarning("Telemetry circuit breaker opened for {Seconds}s", _options.CurrentValue.CircuitBreaker.BreakDurationSeconds);
         }
     }
 }

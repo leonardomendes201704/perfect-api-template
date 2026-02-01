@@ -5,12 +5,12 @@ namespace PerfectApiTemplate.DemoMvc.Infrastructure;
 public sealed class ApiUrlProvider
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly DemoOptions _options;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<DemoOptions> _options;
 
-    public ApiUrlProvider(IHttpContextAccessor httpContextAccessor, IOptions<DemoOptions> options)
+    public ApiUrlProvider(IHttpContextAccessor httpContextAccessor, Microsoft.Extensions.Options.IOptionsMonitor<DemoOptions> options)
     {
         _httpContextAccessor = httpContextAccessor;
-        _options = options.Value;
+        _options = options;
     }
 
     public string GetBaseUrl()
@@ -25,7 +25,6 @@ public sealed class ApiUrlProvider
             }
         }
 
-        return _options.ApiBaseUrl;
+        return _options.CurrentValue.ApiBaseUrl;
     }
 }
-

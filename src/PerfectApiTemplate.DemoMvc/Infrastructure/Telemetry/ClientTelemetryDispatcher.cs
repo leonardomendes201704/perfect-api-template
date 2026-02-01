@@ -10,22 +10,22 @@ public interface IClientTelemetryDispatcher
 public sealed class ClientTelemetryDispatcher : IClientTelemetryDispatcher
 {
     private readonly ClientTelemetryQueue _queue;
-    private readonly ClientTelemetryOptions _options;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> _options;
     private readonly ILogger<ClientTelemetryDispatcher> _logger;
 
     public ClientTelemetryDispatcher(
         ClientTelemetryQueue queue,
-        Microsoft.Extensions.Options.IOptions<ClientTelemetryOptions> options,
+        Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> options,
         ILogger<ClientTelemetryDispatcher> logger)
     {
         _queue = queue;
-        _options = options.Value;
+        _options = options;
         _logger = logger;
     }
 
     public void Enqueue(ClientTelemetryEvent telemetryEvent)
     {
-        if (!_options.Enabled)
+        if (!_options.CurrentValue.Enabled)
         {
             return;
         }

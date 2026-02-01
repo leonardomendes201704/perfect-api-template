@@ -1,8 +1,8 @@
 namespace PerfectApiTemplate.DemoMvc.ApiClients;
 
-public sealed class EmailApiClient : ApiClientBase
+public sealed class SettingsApiClient : ApiClientBase
 {
-    public EmailApiClient(
+    public SettingsApiClient(
         HttpClient httpClient,
         IHttpContextAccessor httpContextAccessor,
         Infrastructure.ApiUrlProvider urlProvider,
@@ -14,10 +14,12 @@ public sealed class EmailApiClient : ApiClientBase
     {
     }
 
-    public Task<ApiResult<EmailMessageDto>> SendAsync(EmailSendRequest request, CancellationToken cancellationToken)
-        => PostAsync<EmailMessageDto>("/api/emails", request, cancellationToken);
+    public Task<ApiResult<ApiSettingsDto>> GetSettingsAsync(CancellationToken cancellationToken)
+        => GetAsync<ApiSettingsDto>("/api/settings", cancellationToken);
 }
 
-public sealed record EmailSendRequest(string? From, string To, string Subject, string Body, bool IsHtml);
+public sealed record ApiSettingsDto(IReadOnlyList<ApiSettingsSectionDto> Sections, DateTimeOffset RetrievedAtUtc);
 
-public sealed record EmailMessageDto(Guid Id, string From, string To, string Subject, int Status, int AttemptCount, DateTime CreatedAtUtc, DateTime? SentAtUtc, string? LastError);
+public sealed record ApiSettingsSectionDto(string Name, IReadOnlyList<ApiSettingItemDto> Items);
+
+public sealed record ApiSettingItemDto(string Key, string Value, string Description);

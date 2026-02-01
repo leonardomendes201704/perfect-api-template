@@ -1,6 +1,7 @@
 using PerfectApiTemplate.DemoMvc.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("App_Data/ui-settings.json", optional: true, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
@@ -19,6 +20,8 @@ builder.Services.AddSession(options =>
 builder.Services.Configure<PerfectApiTemplate.DemoMvc.Infrastructure.DemoOptions>(builder.Configuration);
 builder.Services.AddSingleton<PerfectApiTemplate.DemoMvc.Infrastructure.ApiUrlProvider>();
 builder.Services.Configure<PerfectApiTemplate.DemoMvc.Infrastructure.Telemetry.ClientTelemetryOptions>(builder.Configuration.GetSection("Telemetry"));
+builder.Services.AddSingleton<PerfectApiTemplate.DemoMvc.Infrastructure.Settings.IUiSettingsStore, PerfectApiTemplate.DemoMvc.Infrastructure.Settings.FileUiSettingsStore>();
+builder.Services.AddSingleton<PerfectApiTemplate.DemoMvc.Infrastructure.Settings.FrontendSettingsReader>();
 builder.Services.AddSingleton<PerfectApiTemplate.DemoMvc.Infrastructure.Telemetry.ClientTelemetryQueue>(sp =>
 {
     var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<PerfectApiTemplate.DemoMvc.Infrastructure.Telemetry.ClientTelemetryOptions>>().Value;
@@ -36,6 +39,7 @@ builder.Services.AddScoped<PerfectApiTemplate.DemoMvc.ApiClients.AuthApiClient>(
 builder.Services.AddScoped<PerfectApiTemplate.DemoMvc.ApiClients.CustomersApiClient>();
 builder.Services.AddScoped<PerfectApiTemplate.DemoMvc.ApiClients.EmailApiClient>();
 builder.Services.AddScoped<PerfectApiTemplate.DemoMvc.ApiClients.LogsApiClient>();
+builder.Services.AddScoped<PerfectApiTemplate.DemoMvc.ApiClients.SettingsApiClient>();
 
 var app = builder.Build();
 

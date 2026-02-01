@@ -17,7 +17,7 @@ public abstract class ApiClientBase
     private readonly ApiUrlProvider _urlProvider;
     private readonly IClientCorrelationContext _correlationContext;
     private readonly IClientTelemetryDispatcher _telemetryDispatcher;
-    private readonly ClientTelemetryOptions _telemetryOptions;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> _telemetryOptions;
     private readonly IWebHostEnvironment _environment;
 
     protected ApiClientBase(
@@ -26,7 +26,7 @@ public abstract class ApiClientBase
         ApiUrlProvider urlProvider,
         IClientCorrelationContext correlationContext,
         IClientTelemetryDispatcher telemetryDispatcher,
-        IOptions<ClientTelemetryOptions> telemetryOptions,
+        Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> telemetryOptions,
         IWebHostEnvironment environment)
     {
         _httpClient = httpClient;
@@ -34,7 +34,7 @@ public abstract class ApiClientBase
         _urlProvider = urlProvider;
         _correlationContext = correlationContext;
         _telemetryDispatcher = telemetryDispatcher;
-        _telemetryOptions = telemetryOptions.Value;
+        _telemetryOptions = telemetryOptions;
         _environment = environment;
     }
 
@@ -122,13 +122,13 @@ public abstract class ApiClientBase
         HttpResponseMessage response,
         long durationMs)
     {
-        if (!_telemetryOptions.Enabled)
+        if (!_telemetryOptions.CurrentValue.Enabled)
         {
             return;
         }
 
         var isFailure = result.StatusCode >= 400;
-        var isSlow = durationMs >= _telemetryOptions.SlowCallThresholdMs;
+        var isSlow = durationMs >= _telemetryOptions.CurrentValue.SlowCallThresholdMs;
 
         if (!isFailure && !isSlow)
         {

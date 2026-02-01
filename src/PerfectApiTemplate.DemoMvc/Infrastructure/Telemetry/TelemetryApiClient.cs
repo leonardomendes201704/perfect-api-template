@@ -7,31 +7,34 @@ public sealed class TelemetryApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly ApiUrlProvider _urlProvider;
-    private readonly ClientTelemetryOptions _options;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> _options;
 
-    public TelemetryApiClient(HttpClient httpClient, ApiUrlProvider urlProvider, IOptions<ClientTelemetryOptions> options)
+    public TelemetryApiClient(
+        HttpClient httpClient,
+        ApiUrlProvider urlProvider,
+        Microsoft.Extensions.Options.IOptionsMonitor<ClientTelemetryOptions> options)
     {
         _httpClient = httpClient;
         _urlProvider = urlProvider;
-        _options = options.Value;
+        _options = options;
     }
 
     public async Task<bool> SendAsync(ClientTelemetryEvent telemetryEvent, CancellationToken cancellationToken)
     {
-        if (!_options.Enabled)
+        if (!_options.CurrentValue.Enabled)
         {
             return true;
         }
 
-        var url = new Uri($"{_urlProvider.GetBaseUrl().TrimEnd('/')}/{_options.EndpointPath.TrimStart('/')}");
+        var url = new Uri($"{_urlProvider.GetBaseUrl().TrimEnd('/')}/{_options.CurrentValue.EndpointPath.TrimStart('/')}");
         using var request = new HttpRequestMessage(HttpMethod.Post, url)
         {
             Content = JsonContent.Create(telemetryEvent)
         };
 
-        if (!string.IsNullOrWhiteSpace(_options.InternalKey))
+        if (!string.IsNullOrWhiteSpace(_options.CurrentValue.InternalKey))
         {
-            request.Headers.TryAddWithoutValidation(_options.InternalKeyHeader, _options.InternalKey);
+            request.Headers.TryAddWithoutValidation(_options.CurrentValue.InternalKeyHeader, _options.CurrentValue.InternalKey);
         }
 
         if (!string.IsNullOrWhiteSpace(telemetryEvent.CorrelationId))

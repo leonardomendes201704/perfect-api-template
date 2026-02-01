@@ -12,6 +12,7 @@ using PerfectApiTemplate.Api.Middleware;
 using PerfectApiTemplate.Api.Services;
 using PerfectApiTemplate.Application;
 using PerfectApiTemplate.Application.Abstractions.Logging;
+using PerfectApiTemplate.Application.Abstractions.Settings;
 using PerfectApiTemplate.Application.Abstractions.Telemetry;
 using PerfectApiTemplate.Infrastructure;
 using Serilog;
@@ -39,6 +40,7 @@ builder.Services.Configure<LoggingOptions>(builder.Configuration.GetSection("Log
 builder.Services.Configure<TelemetryOptions>(builder.Configuration.GetSection("Telemetry"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<LoggingOptions>>().Value);
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<TelemetryOptions>>().Value);
+builder.Services.AddSingleton<IAppSettingsReader, ApiSettingsReader>();
 builder.Services.AddScoped<ICorrelationContext, CorrelationContext>();
 
 // --------------------------

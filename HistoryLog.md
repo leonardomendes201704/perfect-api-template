@@ -81,3 +81,7 @@
 - Updated DemoMvc agent guidelines with telemetry middleware/logging instructions.
 - Added error log filtering by source/event type/severity to support frontend telemetry screens.
 - Added a Dashboard button to force a UI exception for frontend telemetry testing.
+- Added DemoMvc settings UI to edit API base URL and telemetry options via App_Data/ui-settings.json.
+- Added API settings read-only view in DemoMvc (fetched from /api/settings).
+- Added descriptions for API and DemoMvc settings and rendered both as accordions in Settings (frontend now editable within accordion).
+- Added full frontend settings accordion (all keys, with descriptions) in Settings page.

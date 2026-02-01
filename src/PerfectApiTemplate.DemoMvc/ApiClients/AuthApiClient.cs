@@ -8,7 +8,7 @@ public sealed class AuthApiClient : ApiClientBase
         Infrastructure.ApiUrlProvider urlProvider,
         Infrastructure.Telemetry.IClientCorrelationContext correlationContext,
         Infrastructure.Telemetry.IClientTelemetryDispatcher telemetryDispatcher,
-        Microsoft.Extensions.Options.IOptions<Infrastructure.Telemetry.ClientTelemetryOptions> telemetryOptions,
+        Microsoft.Extensions.Options.IOptionsMonitor<Infrastructure.Telemetry.ClientTelemetryOptions> telemetryOptions,
         IWebHostEnvironment environment)
         : base(httpClient, httpContextAccessor, urlProvider, correlationContext, telemetryDispatcher, telemetryOptions, environment)
     {
