@@ -80,11 +80,17 @@ When implementing a new endpoint:
 - Swagger docs updated if new endpoints were added/changed.
 - Health endpoint still works (`/health`) and ProblemDetails include `correlationId`.
 - HistoryLog updated (`HistoryLog.md`) for every code change.
+- Commit and push messages include a clear title and a complete description of what was done.
 
 ## Change log rule (MANDATORY)
 Every code change must append an entry to `HistoryLog.md` at solution root with:
 - Date (YYYY-MM-DD)
 - Short description of the change
+
+## Git commit & push rule (MANDATORY)
+Every commit and push must include:
+- A clear title (concise summary).
+- A complete description of what was done (details).
 
 ## Database & migrations rules (MANDATORY)
 Whenever you deliver a NEW FEATURE or FIX that changes ANY of the following:

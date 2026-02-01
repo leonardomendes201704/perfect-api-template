@@ -39,6 +39,12 @@ Default connection string is `Data Source=app.db` in `appsettings.json`.
 - Handlers return `RequestResult<T>`.
 - API base route is `/api`.
 
+## Use this repo as a template
+This repository is marked as a GitHub template. To create a new API:
+1. Click the **Use this template** button on GitHub.
+2. Create a new repository from the template.
+3. Clone the new repo and start coding.
+
 ## Common commands
 ```bash
  dotnet build
