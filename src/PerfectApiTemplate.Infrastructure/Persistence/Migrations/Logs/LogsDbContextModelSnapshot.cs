@@ -428,8 +428,43 @@ namespace PerfectApiTemplate.Infrastructure.Persistence.Migrations.Logs
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ApiMethod")
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApiPath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApiRequestId")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ApiStatusCode")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("AssemblyVersion")
                         .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClientApp")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClientEnv")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClientIp")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClientRoute")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClientUrl")
+                        .HasMaxLength(2048)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CorrelationId")
@@ -439,7 +474,17 @@ namespace PerfectApiTemplate.Infrastructure.Persistence.Migrations.Logs
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DetailsJson")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("DurationMs")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("EnvironmentName")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventType")
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
@@ -490,6 +535,15 @@ namespace PerfectApiTemplate.Infrastructure.Persistence.Migrations.Logs
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Severity")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("SpanId")
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
@@ -500,6 +554,10 @@ namespace PerfectApiTemplate.Infrastructure.Persistence.Migrations.Logs
                     b.Property<int?>("StatusCode")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Tags")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("TenantId")
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
@@ -508,14 +566,26 @@ namespace PerfectApiTemplate.Infrastructure.Persistence.Migrations.Logs
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserIdText")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApiStatusCode");
+
                     b.HasIndex("CorrelationId");
 
                     b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("EventType");
 
                     b.HasIndex("ExceptionType");
 

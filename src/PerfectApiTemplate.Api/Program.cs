@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Microsoft.Extensions.Options;
 using PerfectApiTemplate.Api.Middleware;
 using PerfectApiTemplate.Api.Services;
 using PerfectApiTemplate.Application;
 using PerfectApiTemplate.Application.Abstractions.Logging;
+using PerfectApiTemplate.Application.Abstractions.Telemetry;
 using PerfectApiTemplate.Infrastructure;
 using Serilog;
 
@@ -34,6 +36,9 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<PerfectApiTemplate.Application.Abstractions.Auth.ICurrentUserService, CurrentUserService>();
 builder.Services.Configure<LoggingOptions>(builder.Configuration.GetSection("Logging"));
+builder.Services.Configure<TelemetryOptions>(builder.Configuration.GetSection("Telemetry"));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<LoggingOptions>>().Value);
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<TelemetryOptions>>().Value);
 builder.Services.AddScoped<ICorrelationContext, CorrelationContext>();
 
 // --------------------------

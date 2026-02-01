@@ -116,5 +116,17 @@
                 <a class="btn btn-primary btn-sm" asp-controller="Ui" asp-action="Showcase">Open UI Showcase</a>
             </div>
         </div>
+        <div class="card mt-3">
+            <div class="card-body">
+                <div class="text-muted small">Telemetry Test</div>
+                <p class="mt-2">Force a UI exception to validate frontend log capture.</p>
+                <form asp-controller="Home" asp-action="Throw" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        Force UI Error
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

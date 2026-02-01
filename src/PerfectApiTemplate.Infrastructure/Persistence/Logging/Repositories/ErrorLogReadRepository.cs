@@ -20,12 +20,30 @@ public sealed class ErrorLogReadRepository : IErrorLogReadRepository
         int pageSize,
         string orderBy,
         string orderDir,
+        string? source,
+        string? eventType,
+        string? severity,
         string? exceptionType,
         DateTime? fromUtc,
         DateTime? toUtc,
         CancellationToken cancellationToken = default)
     {
         var query = _dbContext.ErrorLogs.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(source))
+        {
+            query = query.Where(x => x.Source == source);
+        }
+
+        if (!string.IsNullOrWhiteSpace(eventType))
+        {
+            query = query.Where(x => x.EventType != null && x.EventType.Contains(eventType));
+        }
+
+        if (!string.IsNullOrWhiteSpace(severity))
+        {
+            query = query.Where(x => x.Severity == severity);
+        }
 
         if (!string.IsNullOrWhiteSpace(exceptionType))
         {
@@ -53,6 +71,11 @@ public sealed class ErrorLogReadRepository : IErrorLogReadRepository
                 x.CreatedAtUtc,
                 x.ExceptionType,
                 x.Message,
+                x.Source,
+                x.EventType,
+                x.Severity,
+                x.StatusCode,
+                x.ApiStatusCode,
                 x.CorrelationId,
                 x.RequestId))
             .ToListAsync(cancellationToken);
@@ -69,6 +92,18 @@ public sealed class ErrorLogReadRepository : IErrorLogReadRepository
                 x.CreatedAtUtc,
                 x.ExceptionType,
                 x.Message,
+                x.Source,
+                x.EventType,
+                x.Severity,
+                x.ClientApp,
+                x.ClientEnv,
+                x.ClientUrl,
+                x.ClientRoute,
+                x.ApiMethod,
+                x.ApiPath,
+                x.ApiStatusCode,
+                x.DurationMs,
+                x.DetailsJson,
                 x.StackTrace,
                 x.InnerExceptions,
                 x.Method,
@@ -79,9 +114,15 @@ public sealed class ErrorLogReadRepository : IErrorLogReadRepository
                 x.RequestBodyTruncated,
                 x.RequestBodyOriginalLength,
                 x.StatusCode,
+                x.ApiRequestId,
+                x.UserIdText,
+                x.TenantId,
                 x.CorrelationId,
                 x.RequestId,
-                x.TraceId))
+                x.TraceId,
+                x.UserAgent,
+                x.ClientIp,
+                x.Tags))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -98,4 +139,3 @@ public sealed class ErrorLogReadRepository : IErrorLogReadRepository
         };
     }
 }
-

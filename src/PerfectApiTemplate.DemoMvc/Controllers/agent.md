@@ -10,6 +10,8 @@
 - Thin controllers: call ApiClients only.
 - Use PRG (redirect after POST).
 - Set TempData for success/error feedback.
+- Client telemetry views must query logs with `source=client` and remain separate from backend logs.
+- On errors, return the shared error view and keep correlation id visible.
 
 ## Forbidden actions
 - Business logic in controllers.
@@ -19,3 +21,4 @@
 - Input validation handled with ModelState.
 - Redirect after successful POST.
 - EN-US naming.
+- Frontend logs are routed under ClientLogs controller/actions.

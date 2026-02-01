@@ -44,13 +44,16 @@ public sealed class LogsController : ControllerBase
         [FromQuery] int pageSize = 20,
         [FromQuery] string orderBy = "CreatedAtUtc",
         [FromQuery] string orderDir = "desc",
+        [FromQuery] string? source = null,
+        [FromQuery] string? eventType = null,
+        [FromQuery] string? severity = null,
         [FromQuery] string? exceptionType = null,
         [FromQuery] DateTime? fromUtc = null,
         [FromQuery] DateTime? toUtc = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(
-            new ListErrorLogsQuery(pageNumber, pageSize, orderBy, orderDir, exceptionType, fromUtc, toUtc),
+            new ListErrorLogsQuery(pageNumber, pageSize, orderBy, orderDir, source, eventType, severity, exceptionType, fromUtc, toUtc),
             cancellationToken);
         return this.ToActionResult(result);
     }
@@ -87,4 +90,3 @@ public sealed class LogsController : ControllerBase
         return this.ToActionResult(result);
     }
 }
-

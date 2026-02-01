@@ -124,6 +124,24 @@ Enable/disable:
 - `Logging:Errors:Enabled`
 - `Logging:Transactions:Enabled`
 
+## Client telemetry (DemoMvc -> API)
+DemoMvc reports UI/API-call failures to the API telemetry endpoint:
+- Endpoint: `POST /api/telemetry/client-events`
+- Stored in `ErrorLogs` with `Source = "client"` and `EventType`/`Severity`.
+- Uses correlation headers:
+  - `X-Correlation-Id` (stable per UI request)
+  - `X-Request-Id` (unique per API call)
+  - `X-Client-Request-Id` (unique per UI action, for POSTs)
+
+DemoMvc only sends telemetry for:
+- API calls with status >= 400
+- API calls slower than the configured threshold
+- Unhandled UI exceptions (via global exception filter)
+
+Security:
+- Telemetry endpoint requires JWT OR the internal key header (`X-Internal-Telemetry-Key`).
+- Masking and truncation rules apply to `DetailsJson`.
+
 ## Email (SMTP + IMAP/POP3)
 Email sending and inbox reading are supported with background processors:
 - `EmailOutboxProcessor` sends queued emails via SMTP.
@@ -190,6 +208,13 @@ Logging:Enrichment:UserIdClaim        -> Claim used for user id
 Logging:Enrichment:TenantHeader       -> Header used for tenant id
 Logging:Queue:Capacity                -> In-memory log queue capacity
 Logging:RequestIdHeader               -> Request id header name
+Telemetry:Enabled                     -> Enable telemetry endpoint
+Telemetry:RequireAuth                 -> Require auth for telemetry endpoint
+Telemetry:InternalKeyEnabled          -> Enable internal telemetry key
+Telemetry:InternalKey                 -> Telemetry internal key value
+Telemetry:MaxPayloadBytes             -> Max telemetry payload bytes
+Telemetry:Masking:HeaderDenyList       -> Telemetry header deny list
+Telemetry:Masking:JsonKeys             -> Telemetry JSON keys to mask
 Email:Smtp:Host                       -> SMTP host
 Email:Smtp:Port                       -> SMTP port
 Email:Smtp:UseSsl                     -> SMTP SSL toggle
@@ -215,6 +240,16 @@ AdminUser:Email                    -> Admin seed email
 AdminUser:Password                 -> Admin seed password
 AdminUser:FullName                 -> Admin display name
 ApiBaseUrl                          -> Demo MVC API base URL
+Telemetry:EndpointPath              -> Demo MVC telemetry endpoint path
+Telemetry:BatchSize                 -> Demo MVC telemetry batch size
+Telemetry:FlushIntervalMs           -> Demo MVC telemetry flush interval (ms)
+Telemetry:QueueCapacity             -> Demo MVC telemetry queue capacity
+Telemetry:SlowCallThresholdMs       -> Demo MVC slow-call threshold (ms)
+Telemetry:RetryCount                -> Demo MVC telemetry retry count
+Telemetry:InternalKeyHeader         -> Demo MVC telemetry internal key header
+Telemetry:InternalKey               -> Demo MVC telemetry internal key
+Telemetry:CircuitBreaker:FailureThreshold -> Demo MVC telemetry circuit-breaker threshold
+Telemetry:CircuitBreaker:BreakDurationSeconds -> Demo MVC telemetry circuit-breaker duration
 Demo:AdminEmail                     -> Default email address used in Demo UI
 ```
 

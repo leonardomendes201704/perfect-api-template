@@ -47,7 +47,7 @@ public sealed class LogsController : Controller
     [HttpGet]
     public async Task<IActionResult> Errors([FromQuery] ErrorLogFilters filters, CancellationToken cancellationToken)
     {
-        var query = new ErrorLogQuery(filters.PageNumber, filters.PageSize, filters.OrderBy, filters.OrderDir, filters.ExceptionType, filters.FromUtc, filters.ToUtc);
+        var query = new ErrorLogQuery(filters.PageNumber, filters.PageSize, filters.OrderBy, filters.OrderDir, null, null, null, filters.ExceptionType, filters.FromUtc, filters.ToUtc);
         var result = await _client.ListErrorsAsync(query, cancellationToken);
 
         var model = new ErrorLogsViewModel
@@ -142,4 +142,3 @@ public sealed class LogsController : Controller
         };
     }
 }
-

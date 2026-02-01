@@ -4,8 +4,15 @@ namespace PerfectApiTemplate.DemoMvc.ApiClients;
 
 public sealed class CustomersApiClient : ApiClientBase
 {
-    public CustomersApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, Infrastructure.ApiUrlProvider urlProvider)
-        : base(httpClient, httpContextAccessor, urlProvider)
+    public CustomersApiClient(
+        HttpClient httpClient,
+        IHttpContextAccessor httpContextAccessor,
+        Infrastructure.ApiUrlProvider urlProvider,
+        Infrastructure.Telemetry.IClientCorrelationContext correlationContext,
+        Infrastructure.Telemetry.IClientTelemetryDispatcher telemetryDispatcher,
+        Microsoft.Extensions.Options.IOptions<Infrastructure.Telemetry.ClientTelemetryOptions> telemetryOptions,
+        IWebHostEnvironment environment)
+        : base(httpClient, httpContextAccessor, urlProvider, correlationContext, telemetryDispatcher, telemetryOptions, environment)
     {
     }
 
@@ -37,4 +44,3 @@ public sealed record CustomerCreateRequest(string Name, string Email, DateOnly D
 public sealed record CustomerUpdateRequest(string Name, string Email, DateOnly DateOfBirth);
 
 public sealed record PagedResultDto<T>(IReadOnlyList<T> Items, int TotalCount, int PageNumber, int PageSize, string OrderBy, string OrderDir);
-

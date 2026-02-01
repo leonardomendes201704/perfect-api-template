@@ -24,7 +24,7 @@ public sealed class HomeController : Controller
             cancellationToken);
 
         var recentErrors = await _logsClient.ListErrorsAsync(
-            new ErrorLogQuery(1, 5, "CreatedAtUtc", "desc", null, null, null),
+            new ErrorLogQuery(1, 5, "CreatedAtUtc", "desc", null, null, null, null, null, null),
             cancellationToken);
 
         var model = new DashboardViewModel
@@ -36,5 +36,21 @@ public sealed class HomeController : Controller
 
         return View(model);
     }
-}
 
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        var correlationId = HttpContext.Items.TryGetValue(PerfectApiTemplate.DemoMvc.Infrastructure.Telemetry.ClientCorrelationContext.CorrelationHeader, out var value)
+            ? value?.ToString()
+            : HttpContext.TraceIdentifier;
+
+        return View(new PerfectApiTemplate.DemoMvc.ViewModels.Shared.ErrorViewModel { RequestId = correlationId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Throw()
+    {
+        throw new InvalidOperationException("Forced UI exception for telemetry testing.");
+    }
+}

@@ -2,8 +2,15 @@ namespace PerfectApiTemplate.DemoMvc.ApiClients;
 
 public sealed class AuthApiClient : ApiClientBase
 {
-    public AuthApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, Infrastructure.ApiUrlProvider urlProvider)
-        : base(httpClient, httpContextAccessor, urlProvider)
+    public AuthApiClient(
+        HttpClient httpClient,
+        IHttpContextAccessor httpContextAccessor,
+        Infrastructure.ApiUrlProvider urlProvider,
+        Infrastructure.Telemetry.IClientCorrelationContext correlationContext,
+        Infrastructure.Telemetry.IClientTelemetryDispatcher telemetryDispatcher,
+        Microsoft.Extensions.Options.IOptions<Infrastructure.Telemetry.ClientTelemetryOptions> telemetryOptions,
+        IWebHostEnvironment environment)
+        : base(httpClient, httpContextAccessor, urlProvider, correlationContext, telemetryDispatcher, telemetryOptions, environment)
     {
     }
 
@@ -12,4 +19,3 @@ public sealed class AuthApiClient : ApiClientBase
 }
 
 public sealed record AuthResponseDto(Guid UserId, string Email, string Token);
-

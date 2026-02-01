@@ -89,14 +89,31 @@ public sealed class ErrorLoggingMiddleware
             requestOriginalLength,
             context.Response?.StatusCode,
             correlationContext.UserId,
+            correlationContext.UserId?.ToString(),
             correlationContext.TenantId,
             correlationContext.CorrelationId,
             correlationContext.RequestId,
+            null,
             correlationContext.TraceId,
             correlationContext.SpanId,
             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
             Environment.MachineName,
-            typeof(Program).Assembly.GetName().Version?.ToString());
+            typeof(Program).Assembly.GetName().Version?.ToString(),
+            "server",
+            "server_exception",
+            "error",
+            null,
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            context.Request.Headers.UserAgent.ToString(),
+            context.Connection.RemoteIpAddress?.ToString(),
+            null);
 
         _writer.Enqueue(entry);
     }

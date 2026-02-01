@@ -16,6 +16,11 @@ public sealed record ErrorLogDto(
     DateTime CreatedAtUtc,
     string ExceptionType,
     string Message,
+    string Source,
+    string? EventType,
+    string? Severity,
+    int? StatusCode,
+    int? ApiStatusCode,
     string? CorrelationId,
     string? RequestId);
 
@@ -24,6 +29,18 @@ public sealed record ErrorLogDetailDto(
     DateTime CreatedAtUtc,
     string ExceptionType,
     string Message,
+    string Source,
+    string? EventType,
+    string? Severity,
+    string? ClientApp,
+    string? ClientEnv,
+    string? ClientUrl,
+    string? ClientRoute,
+    string? ApiMethod,
+    string? ApiPath,
+    int? ApiStatusCode,
+    long? DurationMs,
+    string? DetailsJson,
     string? StackTrace,
     string? InnerExceptions,
     string Method,
@@ -34,9 +51,15 @@ public sealed record ErrorLogDetailDto(
     bool RequestBodyTruncated,
     long? RequestBodyOriginalLength,
     int? StatusCode,
+    string? ApiRequestId,
+    string? UserIdText,
+    string? TenantId,
     string? CorrelationId,
     string? RequestId,
-    string? TraceId);
+    string? TraceId,
+    string? UserAgent,
+    string? ClientIp,
+    string? Tags);
 
 public sealed record TransactionLogDto(
     Guid Id,
@@ -59,4 +82,3 @@ public sealed record TransactionLogDetailDto(
     string? CorrelationId,
     string? RequestId,
     string? TraceId);
-

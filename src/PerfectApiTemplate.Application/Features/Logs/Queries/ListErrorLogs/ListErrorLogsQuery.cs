@@ -9,7 +9,9 @@ public sealed record ListErrorLogsQuery(
     int PageSize = 20,
     string OrderBy = "CreatedAtUtc",
     string OrderDir = "desc",
+    string? Source = null,
+    string? EventType = null,
+    string? Severity = null,
     string? ExceptionType = null,
     DateTime? FromUtc = null,
     DateTime? ToUtc = null) : IRequest<RequestResult<PagedResult<ErrorLogDto>>>;
-

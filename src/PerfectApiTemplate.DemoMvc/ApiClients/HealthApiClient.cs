@@ -2,8 +2,15 @@ namespace PerfectApiTemplate.DemoMvc.ApiClients;
 
 public sealed class HealthApiClient : ApiClientBase
 {
-    public HealthApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, Infrastructure.ApiUrlProvider urlProvider)
-        : base(httpClient, httpContextAccessor, urlProvider)
+    public HealthApiClient(
+        HttpClient httpClient,
+        IHttpContextAccessor httpContextAccessor,
+        Infrastructure.ApiUrlProvider urlProvider,
+        Infrastructure.Telemetry.IClientCorrelationContext correlationContext,
+        Infrastructure.Telemetry.IClientTelemetryDispatcher telemetryDispatcher,
+        Microsoft.Extensions.Options.IOptions<Infrastructure.Telemetry.ClientTelemetryOptions> telemetryOptions,
+        IWebHostEnvironment environment)
+        : base(httpClient, httpContextAccessor, urlProvider, correlationContext, telemetryDispatcher, telemetryOptions, environment)
     {
     }
 
@@ -13,4 +20,3 @@ public sealed class HealthApiClient : ApiClientBase
         return result.IsSuccess;
     }
 }
-

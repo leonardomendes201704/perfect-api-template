@@ -72,3 +72,12 @@
 - Added App_Data to .gitignore to prevent database files from being tracked.
 - Added reusable filter drawer (offcanvas) component and migrated list screens to use it.
 - Added filter drawer component to UI Showcase.
+- Added client telemetry endpoint and DemoMvc telemetry pipeline with correlation headers and background queue.
+- Extended ErrorLogs schema for client telemetry and added migrations AddClientTelemetryFields (LogsDb) and AddClientTelemetryFieldsToMain (MainDb).
+- Added telemetry integration test and internal key configuration for telemetry.
+- Updated logs UI to display client telemetry fields and details.
+- Updated README with telemetry behavior and ENV keys.
+- Added frontend log views (ClientLogs) separated from backend logs.
+- Updated DemoMvc agent guidelines with telemetry middleware/logging instructions.
+- Added error log filtering by source/event type/severity to support frontend telemetry screens.
+- Added a Dashboard button to force a UI exception for frontend telemetry testing.

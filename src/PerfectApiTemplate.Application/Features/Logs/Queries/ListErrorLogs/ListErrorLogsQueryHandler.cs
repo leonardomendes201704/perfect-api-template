@@ -27,6 +27,9 @@ public sealed class ListErrorLogsQueryHandler : IRequestHandler<ListErrorLogsQue
             pageSize,
             orderBy,
             orderDir,
+            request.Source,
+            request.EventType,
+            request.Severity,
             request.ExceptionType,
             request.FromUtc,
             request.ToUtc,
@@ -35,4 +38,3 @@ public sealed class ListErrorLogsQueryHandler : IRequestHandler<ListErrorLogsQue
         return RequestResult<PagedResult<ErrorLogDto>>.Success(result);
     }
 }
-

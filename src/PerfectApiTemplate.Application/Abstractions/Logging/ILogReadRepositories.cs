@@ -24,6 +24,9 @@ public interface IErrorLogReadRepository
         int pageSize,
         string orderBy,
         string orderDir,
+        string? source,
+        string? eventType,
+        string? severity,
         string? exceptionType,
         DateTime? fromUtc,
         DateTime? toUtc,
@@ -47,4 +50,3 @@ public interface ITransactionLogReadRepository
 
     Task<TransactionLogDetailDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 }
-

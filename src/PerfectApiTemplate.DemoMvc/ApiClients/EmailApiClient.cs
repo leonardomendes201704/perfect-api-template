@@ -2,8 +2,15 @@ namespace PerfectApiTemplate.DemoMvc.ApiClients;
 
 public sealed class EmailApiClient : ApiClientBase
 {
-    public EmailApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, Infrastructure.ApiUrlProvider urlProvider)
-        : base(httpClient, httpContextAccessor, urlProvider)
+    public EmailApiClient(
+        HttpClient httpClient,
+        IHttpContextAccessor httpContextAccessor,
+        Infrastructure.ApiUrlProvider urlProvider,
+        Infrastructure.Telemetry.IClientCorrelationContext correlationContext,
+        Infrastructure.Telemetry.IClientTelemetryDispatcher telemetryDispatcher,
+        Microsoft.Extensions.Options.IOptions<Infrastructure.Telemetry.ClientTelemetryOptions> telemetryOptions,
+        IWebHostEnvironment environment)
+        : base(httpClient, httpContextAccessor, urlProvider, correlationContext, telemetryDispatcher, telemetryOptions, environment)
     {
     }
 

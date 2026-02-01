@@ -32,17 +32,33 @@ public sealed class ErrorLogWriter : IErrorLogWriter
             RequestBodyOriginalLength = entry.RequestBodyOriginalLength,
             StatusCode = entry.StatusCode,
             UserId = entry.UserId,
+            UserIdText = entry.UserIdText,
             TenantId = entry.TenantId,
             CorrelationId = entry.CorrelationId,
             RequestId = entry.RequestId,
+            ApiRequestId = entry.ApiRequestId,
             TraceId = entry.TraceId,
             SpanId = entry.SpanId,
             EnvironmentName = entry.EnvironmentName,
             MachineName = entry.MachineName,
-            AssemblyVersion = entry.AssemblyVersion
+            AssemblyVersion = entry.AssemblyVersion,
+            Source = entry.Source,
+            EventType = entry.EventType,
+            Severity = entry.Severity,
+            ClientApp = entry.ClientApp,
+            ClientEnv = entry.ClientEnv,
+            ClientUrl = entry.ClientUrl,
+            ClientRoute = entry.ClientRoute,
+            ApiMethod = entry.ApiMethod,
+            ApiPath = entry.ApiPath,
+            ApiStatusCode = entry.ApiStatusCode,
+            DurationMs = entry.DurationMs,
+            DetailsJson = entry.DetailsJson,
+            UserAgent = entry.UserAgent,
+            ClientIp = entry.ClientIp,
+            Tags = entry.Tags
         };
 
         _queue.Enqueue(log);
     }
 }
-

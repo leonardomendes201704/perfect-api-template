@@ -33,6 +33,10 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 ["AdminUser:Email"] = "admin@admin.com.br",
                 ["AdminUser:Password"] = "Naotemsenha0!",
                 ["AdminUser:FullName"] = "System Administrator",
+                ["Telemetry:Enabled"] = "true",
+                ["Telemetry:RequireAuth"] = "true",
+                ["Telemetry:InternalKeyEnabled"] = "true",
+                ["Telemetry:InternalKey"] = "test-telemetry-key",
                 ["Email:Smtp:Host"] = "smtp.test.local",
                 ["Email:Smtp:Port"] = "1025",
                 ["Email:Smtp:UseSsl"] = "false",
@@ -85,9 +89,9 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            db.Database.EnsureCreated();
+            db.Database.Migrate();
             var logsDb = scope.ServiceProvider.GetRequiredService<LogsDbContext>();
-            logsDb.Database.EnsureCreated();
+            logsDb.Database.Migrate();
 
             var adminSeeder = scope.ServiceProvider.GetRequiredService<PerfectApiTemplate.Infrastructure.Auth.AdminUserSeeder>();
             adminSeeder.SeedAsync().GetAwaiter().GetResult();

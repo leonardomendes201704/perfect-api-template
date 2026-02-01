@@ -17,6 +17,13 @@ public sealed class ErrorLogsViewModel
     public PaginationViewModel Pagination { get; init; } = new();
 }
 
+public sealed class ClientErrorLogsViewModel
+{
+    public IReadOnlyList<ErrorLogDto> Items { get; init; } = Array.Empty<ErrorLogDto>();
+    public ClientErrorLogFilters Filters { get; init; } = new();
+    public PaginationViewModel Pagination { get; init; } = new();
+}
+
 public sealed class TransactionLogsViewModel
 {
     public IReadOnlyList<TransactionLogDto> Items { get; init; } = Array.Empty<TransactionLogDto>();
@@ -53,6 +60,18 @@ public sealed class ErrorLogFilters
     public string OrderBy { get; set; } = "CreatedAtUtc";
     public string OrderDir { get; set; } = "desc";
     public string? ExceptionType { get; set; }
+    public DateTime? FromUtc { get; set; }
+    public DateTime? ToUtc { get; set; }
+}
+
+public sealed class ClientErrorLogFilters
+{
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 20;
+    public string OrderBy { get; set; } = "CreatedAtUtc";
+    public string OrderDir { get; set; } = "desc";
+    public string? EventType { get; set; }
+    public string? Severity { get; set; }
     public DateTime? FromUtc { get; set; }
     public DateTime? ToUtc { get; set; }
 }

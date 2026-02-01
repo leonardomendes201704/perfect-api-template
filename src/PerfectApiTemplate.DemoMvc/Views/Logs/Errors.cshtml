@@ -65,7 +65,18 @@
         .WithQueryOptions(queryOptions)
         .WithFilters(filters)
         .AddColumn("Time", item => new HtmlString(item.CreatedAtUtc.ToLocalTime().ToString("g")), "CreatedAtUtc")
-        .AddColumn("Type", item => new HtmlString(HtmlEncoder.Default.Encode(item.ExceptionType)), "ExceptionType")
+        .AddColumn("Source", item => new HtmlString(HtmlEncoder.Default.Encode(item.Source)), "Source")
+        .AddColumn("Event", item =>
+        {
+            var value = string.IsNullOrWhiteSpace(item.EventType) ? item.ExceptionType : item.EventType;
+            return new HtmlString(HtmlEncoder.Default.Encode(value));
+        }, "EventType")
+        .AddColumn("Severity", item => new HtmlString(HtmlEncoder.Default.Encode(item.Severity ?? "-")), "Severity")
+        .AddColumn("Status", item =>
+        {
+            var status = item.ApiStatusCode ?? item.StatusCode;
+            return new HtmlString(status?.ToString() ?? "-");
+        }, "StatusCode")
         .AddColumn("Message", item =>
         {
             var message = HtmlEncoder.Default.Encode(item.Message);

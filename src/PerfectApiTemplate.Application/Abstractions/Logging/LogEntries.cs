@@ -46,14 +46,31 @@ public sealed record ErrorLogEntry(
     long? RequestBodyOriginalLength,
     int? StatusCode,
     Guid? UserId,
+    string? UserIdText,
     string? TenantId,
     string? CorrelationId,
     string? RequestId,
+    string? ApiRequestId,
     string? TraceId,
     string? SpanId,
     string? EnvironmentName,
     string? MachineName,
-    string? AssemblyVersion);
+    string? AssemblyVersion,
+    string Source,
+    string? EventType,
+    string? Severity,
+    string? ClientApp,
+    string? ClientEnv,
+    string? ClientUrl,
+    string? ClientRoute,
+    string? ApiMethod,
+    string? ApiPath,
+    int? ApiStatusCode,
+    long? DurationMs,
+    string? DetailsJson,
+    string? UserAgent,
+    string? ClientIp,
+    string? Tags);
 
 public sealed record TransactionLogEntry(
     DateTime CreatedAtUtc,
@@ -71,4 +88,3 @@ public sealed record TransactionLogEntry(
     string? RequestId,
     string? TraceId,
     string? SpanId);
-
