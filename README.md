@@ -142,6 +142,61 @@ Security:
 - Telemetry endpoint requires JWT OR the internal key header (`X-Internal-Telemetry-Key`).
 - Masking and truncation rules apply to `DetailsJson`.
 
+## SignalR (E2E realtime updates)
+This template includes a SignalR hub to broadcast new log entries and any other realtime events.
+
+### API (server)
+Hub endpoint:
+- `/hubs/notifications`
+
+Channels and events used for logs:
+- `logs.requests` -> `requestLog.created`
+- `logs.errors` -> `errorLog.created`
+- `logs.transactions` -> `transactionLog.created`
+
+To publish from the API (any handler/service), inject `IRealtimeNotifier` and send to a channel:
+```csharp
+public sealed class NotifySomethingHandler : IRequestHandler<NotifySomething, RequestResult<Guid>>
+{
+    private readonly IRealtimeNotifier _notifier;
+
+    public NotifySomethingHandler(IRealtimeNotifier notifier) => _notifier = notifier;
+
+    public async Task<RequestResult<Guid>> Handle(NotifySomething request, CancellationToken ct)
+    {
+        var payload = new { message = "Something happened", atUtc = DateTimeOffset.UtcNow };
+        await _notifier.PublishAsync("system.events", "event.created", payload, ct);
+        return RequestResult<Guid>.Success(Guid.NewGuid());
+    }
+}
+```
+
+### DemoMvc (client)
+Demo UI connects to the hub and auto-refreshes grids when events arrive.
+- Each logs page includes a SignalR status badge + Auto-refresh toggle.
+- Toggle is stored in `localStorage` (key: `signalr:logs:autoRefresh`).
+
+Basic client usage pattern (from `_SignalRLogs` partial):
+```javascript
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl("/hubs/notifications")
+  .withAutomaticReconnect()
+  .build();
+
+await connection.start();
+await connection.invoke("JoinChannel", "logs.errors");
+
+connection.on("errorLog.created", () => {
+  if (autoRefreshEnabled) window.location.reload();
+});
+```
+
+### CORS
+SignalR requires the DemoMvc origin to be allowed by the API. Configure:
+```
+Cors:AllowedOrigins = [ "https://localhost:7024" ]
+```
+
 ## Email (SMTP + IMAP/POP3)
 Email sending and inbox reading are supported with background processors:
 - `EmailOutboxProcessor` sends queued emails via SMTP.
@@ -208,6 +263,7 @@ Logging:Enrichment:UserIdClaim        -> Claim used for user id
 Logging:Enrichment:TenantHeader       -> Header used for tenant id
 Logging:Queue:Capacity                -> In-memory log queue capacity
 Logging:RequestIdHeader               -> Request id header name
+Cors:AllowedOrigins                   -> Allowed origins for CORS (SignalR + API)
 Telemetry:Enabled                     -> Enable telemetry endpoint
 Telemetry:RequireAuth                 -> Require auth for telemetry endpoint
 Telemetry:InternalKeyEnabled          -> Enable internal telemetry key

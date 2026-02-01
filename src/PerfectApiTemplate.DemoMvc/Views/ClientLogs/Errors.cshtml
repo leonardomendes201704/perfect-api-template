@@ -1,9 +1,19 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Html
+@inject PerfectApiTemplate.DemoMvc.Infrastructure.ApiUrlProvider ApiUrlProvider
 @model PerfectApiTemplate.DemoMvc.ViewModels.Logs.ClientErrorLogsViewModel
 @{
     ViewData["Title"] = "Frontend Errors";
     ViewData["Subtitle"] = "Client-side telemetry events from Demo MVC";
+
+    var signalrOptions = new PerfectApiTemplate.DemoMvc.ViewModels.Shared.SignalRLogOptions
+    {
+        ApiBaseUrl = ApiUrlProvider.GetBaseUrl(),
+        Channel = "logs.errors",
+        EventName = "errorLog.created",
+        ReloadMessage = "New frontend error received. Refreshing...",
+        ToggleStorageKey = "signalr.autorefresh.clienterrors"
+    };
 
     var queryOptions = new GridQueryOptions
     {
@@ -102,3 +112,16 @@
 
 <partial name="_FilterDrawer" model="filterDrawer" />
 <partial name="_Grid" model="grid" />
+<div class="mt-3">
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge text-bg-secondary" data-signalr-status>SignalR: disconnected</span>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="autoRefreshClientErrors" data-signalr-toggle>
+            <label class="form-check-label" for="autoRefreshClientErrors">Auto-refresh</label>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_SignalRLogs" model="signalrOptions" />
+}

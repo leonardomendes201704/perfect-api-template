@@ -18,6 +18,7 @@ using PerfectApiTemplate.Infrastructure.Persistence.Logging.Queues;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Repositories;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Writers;
 using PerfectApiTemplate.Infrastructure.Persistence.Logging.Workers;
+using PerfectApiTemplate.Infrastructure.Realtime;
 
 namespace PerfectApiTemplate.Infrastructure;
 
@@ -105,6 +106,7 @@ public static class DependencyInjection
         services.AddHostedService<ErrorLogWorker>();
         services.AddHostedService<TransactionLogWorker>();
         services.AddHostedService<LogRetentionWorker>();
+        services.AddSingleton<IRealtimeNotifier, SignalRNotifier>();
 
         return services;
     }

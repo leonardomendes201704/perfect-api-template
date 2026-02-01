@@ -1,9 +1,19 @@
 ﻿@using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Html
+@inject PerfectApiTemplate.DemoMvc.Infrastructure.ApiUrlProvider ApiUrlProvider
 @model RequestLogsViewModel
 @{
     ViewData["Title"] = "Request Logs";
     ViewData["Subtitle"] = "HTTP request/response activity";
+
+    var signalrOptions = new PerfectApiTemplate.DemoMvc.ViewModels.Shared.SignalRLogOptions
+    {
+        ApiBaseUrl = ApiUrlProvider.GetBaseUrl(),
+        Channel = "logs.requests",
+        EventName = "requestLog.created",
+        ReloadMessage = "New request log received. Refreshing...",
+        ToggleStorageKey = "signalr.autorefresh.requests"
+    };
 
     var queryOptions = new GridQueryOptions
     {
@@ -76,3 +86,16 @@
 
 <partial name="_FilterDrawer" model="filterDrawer" />
 <partial name="_Grid" model="grid" />
+<div class="mt-3">
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge text-bg-secondary" data-signalr-status>SignalR: disconnected</span>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="autoRefreshRequests" data-signalr-toggle>
+            <label class="form-check-label" for="autoRefreshRequests">Auto-refresh</label>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_SignalRLogs" model="signalrOptions" />
+}

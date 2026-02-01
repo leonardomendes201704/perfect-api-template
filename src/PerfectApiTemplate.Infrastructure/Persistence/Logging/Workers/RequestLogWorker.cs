@@ -11,12 +11,18 @@ public sealed class RequestLogWorker : BackgroundService
 {
     private readonly LogQueue<RequestLog> _queue;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly PerfectApiTemplate.Application.Abstractions.Notifications.IRealtimeNotifier _notifier;
     private readonly ILogger<RequestLogWorker> _logger;
 
-    public RequestLogWorker(LogQueue<RequestLog> queue, IServiceScopeFactory scopeFactory, ILogger<RequestLogWorker> logger)
+    public RequestLogWorker(
+        LogQueue<RequestLog> queue,
+        IServiceScopeFactory scopeFactory,
+        PerfectApiTemplate.Application.Abstractions.Notifications.IRealtimeNotifier notifier,
+        ILogger<RequestLogWorker> logger)
     {
         _queue = queue;
         _scopeFactory = scopeFactory;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -32,6 +38,11 @@ public sealed class RequestLogWorker : BackgroundService
                     var db = scope.ServiceProvider.GetRequiredService<LogsDbContext>();
                     db.RequestLogs.Add(log);
                     await db.SaveChangesAsync(stoppingToken);
+                    await _notifier.PublishAsync(
+                        "logs.requests",
+                        "requestLog.created",
+                        new { log.Id, log.Path, log.StatusCode, log.StartedAtUtc },
+                        stoppingToken);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {

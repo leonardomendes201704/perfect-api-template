@@ -85,3 +85,9 @@
 - Added API settings read-only view in DemoMvc (fetched from /api/settings).
 - Added descriptions for API and DemoMvc settings and rendered both as accordions in Settings (frontend now editable within accordion).
 - Added full frontend settings accordion (all keys, with descriptions) in Settings page.
+- Added SignalR hub and realtime log notifications; logs grids auto-refresh on new entries.
+- Added CORS policy to allow DemoMvc to connect to SignalR hub for realtime updates.
+- Added SignalR status badge and client-side console logs for connection troubleshooting.
+- Switched SignalR client script to local libman/unpkg asset to avoid CDN load failures.
+- Added auto-refresh toggle for all SignalR-enabled log grids.
+- Documented SignalR end-to-end usage in README with API publish example and DemoMvc client pattern.

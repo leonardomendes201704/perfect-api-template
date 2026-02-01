@@ -34,6 +34,29 @@ builder.Host.UseSerilog();
 // MVC
 // --------------------------
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DemoCors", policy =>
+    {
+        var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        if (origins.Length == 0)
+        {
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+        else
+        {
+            policy
+                .WithOrigins(origins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+    });
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<PerfectApiTemplate.Application.Abstractions.Auth.ICurrentUserService, CurrentUserService>();
 builder.Services.Configure<LoggingOptions>(builder.Configuration.GetSection("Logging"));
@@ -228,9 +251,12 @@ if (!app.Environment.IsEnvironment("Testing"))
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("DemoCors");
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+app.MapHub<PerfectApiTemplate.Infrastructure.Realtime.NotificationsHub>("/hubs/notifications")
+    .RequireCors("DemoCors");
 
 if (app.Environment.IsEnvironment("Testing"))
 {
