@@ -30,7 +30,6 @@ public sealed class CustomerService : ICustomerService
             Name = name.Trim(),
             Email = normalizedEmail,
             DateOfBirth = dateOfBirth,
-            CreatedAtUtc = _dateTimeProvider.UtcNow
         };
 
         await _customerRepository.AddAsync(customer, cancellationToken);

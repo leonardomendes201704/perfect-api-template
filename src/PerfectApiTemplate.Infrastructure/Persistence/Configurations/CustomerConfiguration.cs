@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PerfectApiTemplate.Domain.Entities;
 
 namespace PerfectApiTemplate.Infrastructure.Persistence.Configurations;
 
-public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+public sealed class CustomerConfiguration : AuditableEntityConfiguration<Customer>
 {
-    public void Configure(EntityTypeBuilder<Customer> builder)
+    protected override void ConfigureEntity(EntityTypeBuilder<Customer> builder)
     {
         builder.ToTable("Customers");
         builder.HasKey(c => c.Id);
@@ -18,9 +18,6 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .IsRequired();
         builder.Property(c => c.DateOfBirth)
             .IsRequired();
-        builder.Property(c => c.CreatedAtUtc)
-            .IsRequired();
         builder.HasIndex(c => c.Email).IsUnique();
     }
 }
-

@@ -37,3 +37,10 @@
 - Fixed integration test DB scope by using a stable InMemory database name per factory.
 - Simplified admin seed test to assert active flag via projection.
 - Reverted integration tests to shared SQLite in-memory provider to avoid mixed providers.
+- Added mandatory list endpoint pagination/filter/order rules and auditable base entity requirement.
+- Added pagination guidance recommending keyset/seek pagination in README.
+- Added cursor-based pagination helper models and unit tests.
+- Wired cursor-based pagination helper into Customers list query and controller.
+- Added auditable base entity fields, updated Customers list to support includeInactive, and added migration AddAuditFields.
+- Centralized audit field mappings via AuditableEntityConfiguration base.
+- Added soft delete audit fields and SaveChanges handling with migration AddSoftDeleteFields.

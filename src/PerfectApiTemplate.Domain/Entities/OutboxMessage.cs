@@ -1,8 +1,7 @@
 ﻿namespace PerfectApiTemplate.Domain.Entities;
 
-public sealed class OutboxMessage
+public sealed class OutboxMessage : AuditableEntity
 {
-    public Guid Id { get; set; }
     public DateTime OccurredAtUtc { get; set; }
     public DateTime? ProcessedAtUtc { get; set; }
     public string Type { get; set; } = string.Empty;

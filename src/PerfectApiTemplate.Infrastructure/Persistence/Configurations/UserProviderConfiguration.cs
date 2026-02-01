@@ -4,9 +4,9 @@ using PerfectApiTemplate.Domain.Entities;
 
 namespace PerfectApiTemplate.Infrastructure.Persistence.Configurations;
 
-public sealed class UserProviderConfiguration : IEntityTypeConfiguration<UserProvider>
+public sealed class UserProviderConfiguration : AuditableEntityConfiguration<UserProvider>
 {
-    public void Configure(EntityTypeBuilder<UserProvider> builder)
+    protected override void ConfigureEntity(EntityTypeBuilder<UserProvider> builder)
     {
         builder.ToTable("UserProviders");
         builder.HasKey(up => up.Id);

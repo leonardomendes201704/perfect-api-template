@@ -38,6 +38,14 @@
 - API base route: `/api`.
 - Use async/await for I/O and MediatR handlers.
 - Keep domain entities free of infrastructure concerns.
+- All entities must inherit from a base auditable entity with: CreatedAtUtc, UpdatedAtUtc, CreatedByUserId, UpdatedByUserId (nullable where appropriate).
+
+## List endpoints (MANDATORY)
+For every LIST endpoint:
+- Must be paginated.
+- Must support filtering for all relevant fields.
+- Must support ordering by any field (default order defined per entity).
+- Must exclude records where IsActive = false by default; only include them when explicitly filtered.
 
 ## Result/Error model rules
 - Handlers return `RequestResult<T>`.

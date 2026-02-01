@@ -38,9 +38,16 @@ public sealed class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListCustomers([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> ListCustomers(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string orderBy = "CreatedAtUtc",
+        [FromQuery] string orderDir = "desc",
+        [FromQuery] string? cursor = null,
+        [FromQuery] bool includeInactive = false,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new ListCustomersQuery(pageNumber, pageSize), cancellationToken);
+        var result = await _mediator.Send(new ListCustomersQuery(pageNumber, pageSize, orderBy, orderDir, cursor, includeInactive), cancellationToken);
         return this.ToActionResult(result);
     }
 }

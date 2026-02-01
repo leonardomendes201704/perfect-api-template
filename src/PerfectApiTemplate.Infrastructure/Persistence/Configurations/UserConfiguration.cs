@@ -4,9 +4,9 @@ using PerfectApiTemplate.Domain.Entities;
 
 namespace PerfectApiTemplate.Infrastructure.Persistence.Configurations;
 
-public sealed class UserConfiguration : IEntityTypeConfiguration<User>
+public sealed class UserConfiguration : AuditableEntityConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    protected override void ConfigureEntity(EntityTypeBuilder<User> builder)
     {
         builder.ToTable("Users");
         builder.HasKey(u => u.Id);
@@ -18,10 +18,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
         builder.Property(u => u.PasswordHash)
             .HasMaxLength(500)
-            .IsRequired();
-        builder.Property(u => u.IsActive)
-            .IsRequired();
-        builder.Property(u => u.CreatedAtUtc)
             .IsRequired();
         builder.Property(u => u.LastLoginUtc);
         builder.HasIndex(u => u.Email).IsUnique();

@@ -39,7 +39,6 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
             Email = request.Email.Trim().ToLowerInvariant(),
             FullName = request.FullName.Trim(),
             PasswordHash = _passwordHasher.Hash(request.Password),
-            CreatedAtUtc = DateTime.UtcNow,
             IsActive = true
         };
 
@@ -128,7 +127,6 @@ public sealed class ExternalLoginCommandHandler : IRequestHandler<ExternalLoginC
                     Email = info.Email.Trim().ToLowerInvariant(),
                     FullName = info.FullName.Trim(),
                     PasswordHash = string.Empty,
-                    CreatedAtUtc = DateTime.UtcNow,
                     IsActive = true
                 };
                 await _userRepository.AddAsync(user, cancellationToken);

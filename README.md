@@ -52,6 +52,18 @@ Configuration:
 - Handlers return `RequestResult<T>`.
 - API base route is `/api`.
 
+## Pagination guidance
+Prefer **keyset/seek pagination** for large datasets to avoid performance issues with LIMIT/OFFSET.
+
+Example (recommended):
+```
+GET /api/customers?orderBy=CreatedAtUtc&orderDir=desc&pageSize=50&cursor=2026-02-01T10:00:00Z|b3f1c1e6-...
+```
+
+Notes:
+- Cursor should include the last item’s ordered fields (e.g., `CreatedAtUtc|Id`) to keep ordering stable.
+- Only use OFFSET pagination when you truly need page numbers; otherwise, default to keyset.
+
 ## ENVs
 Keep this section in sync with `appsettings.json` and `appsettings.Development.json`.
 

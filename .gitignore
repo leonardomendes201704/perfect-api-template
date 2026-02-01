@@ -1,4 +1,4 @@
-.vs/
+﻿.vs/
 **/.vs/
 **/bin/
 **/obj/
@@ -7,3 +7,4 @@
 *.userosscache
 *.sln.docstates
 app.db
+

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PerfectApiTemplate.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using PerfectApiTemplate.Infrastructure.Persistence;
 namespace PerfectApiTemplate.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201122003_AddAuditFields")]
+    partial class AddAuditFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -30,12 +33,6 @@ namespace PerfectApiTemplate.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -75,12 +72,6 @@ namespace PerfectApiTemplate.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Error")
@@ -130,12 +121,6 @@ namespace PerfectApiTemplate.Infrastructure.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(320)
@@ -181,12 +166,6 @@ namespace PerfectApiTemplate.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")

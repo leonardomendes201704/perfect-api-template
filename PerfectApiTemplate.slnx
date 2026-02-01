@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/src/">
     <Project Path="src/PerfectApiTemplate.Api/PerfectApiTemplate.Api.csproj" />
     <Project Path="src/PerfectApiTemplate.Application/PerfectApiTemplate.Application.csproj" />
@@ -10,3 +10,4 @@
     <Project Path="tests/PerfectApiTemplate.Tests.Unit/PerfectApiTemplate.Tests.Unit.csproj" />
   </Folder>
 </Solution>
+

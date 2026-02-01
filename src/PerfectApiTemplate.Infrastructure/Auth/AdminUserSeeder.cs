@@ -48,7 +48,6 @@ public sealed class AdminUserSeeder
             Email = email.Trim().ToLowerInvariant(),
             FullName = fullName.Trim(),
             PasswordHash = _passwordHasher.Hash(password),
-            CreatedAtUtc = DateTime.UtcNow,
             IsActive = true
         };
 
