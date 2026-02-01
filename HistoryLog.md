@@ -45,3 +45,5 @@
 - Centralized audit field mappings via AuditableEntityConfiguration base.
 - Added soft delete audit fields and SaveChanges handling with migration AddSoftDeleteFields.
 - Added email send/receive feature with SMTP + IMAP/POP3, queues, processors, endpoints, tests, and migration AddEmailMessaging.
+- Added separate LogsDb with request/error/transaction logging, masking/sampling/retention, and migration AddAuditLoggingTables.
+- Added request id middleware and test coverage for log persistence with separate LogsDb.

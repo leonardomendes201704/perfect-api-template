@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PerfectApiTemplate.Application.Abstractions.Auth;
 using PerfectApiTemplate.Application.Abstractions.Email;
 using PerfectApiTemplate.Infrastructure.Persistence;
+using PerfectApiTemplate.Infrastructure.Persistence.Logging;
 using PerfectApiTemplate.Infrastructure.Email;
 
 namespace PerfectApiTemplate.Tests.Integration.Fixtures;
@@ -15,17 +16,20 @@ namespace PerfectApiTemplate.Tests.Integration.Fixtures;
 public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection = new("Data Source=:memory:");
+    private readonly SqliteConnection _logsConnection = new("Data Source=:memory:");
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         _connection.Open();
+        _logsConnection.Open();
 
         builder.UseEnvironment("Testing");
         builder.ConfigureAppConfiguration((context, config) =>
         {
             var overrides = new Dictionary<string, string?>
             {
-                ["ConnectionStrings:DefaultConnection"] = "Data Source=:memory:",
+                ["ConnectionStrings:MainDb"] = "Data Source=:memory:",
+                ["ConnectionStrings:LogsDb"] = "Data Source=:memory:",
                 ["AdminUser:Email"] = "admin@admin.com.br",
                 ["AdminUser:Password"] = "Naotemsenha0!",
                 ["AdminUser:FullName"] = "System Administrator",
@@ -54,7 +58,16 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll<ApplicationDbContext>();
             services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
+            services.AddDbContext<ApplicationDbContext>((sp, options) =>
+            {
+                options.UseSqlite(_connection);
+                var interceptor = sp.GetRequiredService<PerfectApiTemplate.Infrastructure.Persistence.Logging.TransactionAuditInterceptor>();
+                options.AddInterceptors(interceptor);
+            });
+
+            services.RemoveAll<LogsDbContext>();
+            services.RemoveAll<DbContextOptions<LogsDbContext>>();
+            services.AddDbContext<LogsDbContext>(options => options.UseSqlite(_logsConnection));
 
             services.RemoveAll<IExternalAuthService>();
             services.AddSingleton<IExternalAuthService, FakeExternalAuthService>();
@@ -73,6 +86,8 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             db.Database.EnsureCreated();
+            var logsDb = scope.ServiceProvider.GetRequiredService<LogsDbContext>();
+            logsDb.Database.EnsureCreated();
 
             var adminSeeder = scope.ServiceProvider.GetRequiredService<PerfectApiTemplate.Infrastructure.Auth.AdminUserSeeder>();
             adminSeeder.SeedAsync().GetAwaiter().GetResult();
@@ -85,6 +100,7 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         if (disposing)
         {
             _connection.Dispose();
+            _logsConnection.Dispose();
         }
     }
 }

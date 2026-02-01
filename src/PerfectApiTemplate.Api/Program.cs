@@ -9,6 +9,7 @@ using Microsoft.OpenApi;
 using PerfectApiTemplate.Api.Middleware;
 using PerfectApiTemplate.Api.Services;
 using PerfectApiTemplate.Application;
+using PerfectApiTemplate.Application.Abstractions.Logging;
 using PerfectApiTemplate.Infrastructure;
 using Serilog;
 
@@ -31,6 +32,8 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<PerfectApiTemplate.Application.Abstractions.Auth.ICurrentUserService, CurrentUserService>();
+builder.Services.Configure<LoggingOptions>(builder.Configuration.GetSection("Logging"));
+builder.Services.AddScoped<ICorrelationContext, CorrelationContext>();
 
 // --------------------------
 // DI (Application + Infrastructure)
@@ -100,6 +103,7 @@ builder.Services.AddHealthChecks();
 // --------------------------
 builder.Services.AddProblemDetails(options =>
 {
+    var requestIdHeader = builder.Configuration.GetValue<string>("Logging:RequestIdHeader") ?? "X-Request-Id";
     options.IncludeExceptionDetails = (context, _) =>
         builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Testing");
     options.OnBeforeWriteDetails = (context, details) =>
@@ -107,6 +111,11 @@ builder.Services.AddProblemDetails(options =>
         if (context.Items.TryGetValue(CorrelationIdMiddleware.HeaderName, out var value) && value is string correlationId)
         {
             details.Extensions["correlationId"] = correlationId;
+        }
+
+        if (context.Items.TryGetValue(requestIdHeader, out var requestValue) && requestValue is string requestId)
+        {
+            details.Extensions["requestId"] = requestId;
         }
     };
 });
@@ -147,8 +156,10 @@ app.UseSerilogRequestLogging();
 
 // CorrelationId must run BEFORE ProblemDetails so errors include correlationId
 app.UseMiddleware<CorrelationIdMiddleware>();
-
+app.UseMiddleware<RequestIdMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseProblemDetails();
+app.UseMiddleware<ErrorLoggingMiddleware>();
 
 // Swagger JSON endpoint: /swagger/v1/swagger.json
 app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
@@ -212,6 +223,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+if (app.Environment.IsEnvironment("Testing"))
+{
+    app.MapGet("/api/test/throw", (HttpContext _) => throw new InvalidOperationException("Test exception"));
+}
 
 using (var scope = app.Services.CreateScope())
 {

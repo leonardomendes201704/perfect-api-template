@@ -7,7 +7,7 @@ public sealed class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Ap
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
-        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__MainDb")
             ?? "Data Source=app.db";
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         optionsBuilder.UseSqlite(connectionString);

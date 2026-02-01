@@ -11,19 +11,27 @@ Production-ready .NET 9 API starter using Clean Architecture + CQRS (MediatR), F
 
 The API will be available with Swagger at `/swagger` and health at `/health`.
 
-## Database (SQLite)
-Default connection string is `Data Source=app.db` in `appsettings.json`.
+## Databases (SQLite)
+This template uses two databases:
+- MainDb: application data (`app.db`)
+- LogsDb: request/error/transaction logs (`logs.db`)
 
 ### Migrations
 ```bash
 # install EF tools if needed
  dotnet tool install --global dotnet-ef
 
-# add migration
- dotnet ef migrations add InitialCreate --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api
+# add migration (MainDb)
+ dotnet ef migrations add InitialCreate --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api --output-dir Persistence/Migrations/Main
 
-# apply migration
+# add migration (LogsDb)
+ dotnet ef migrations add AddAuditLoggingTables --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api --context LogsDbContext --output-dir Persistence/Migrations/Logs
+
+# apply migration (MainDb)
  dotnet ef database update --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api
+
+# apply migration (LogsDb)
+ dotnet ef database update --project src/PerfectApiTemplate.Infrastructure --startup-project src/PerfectApiTemplate.Api --context LogsDbContext
 ```
 
 ## Add a new feature
@@ -45,6 +53,28 @@ Configuration:
 ```json
 "Outbox": { "BatchSize": 20, "PollingSeconds": 5 }
 ```
+
+## Logging/auditing (separate LogsDb)
+This template writes observability data to a separate database (`LogsDb`):
+- `RequestLogs`: request/response metadata + sanitized/truncated bodies.
+- `ErrorLogs`: unhandled exceptions with request context.
+- `TransactionLogs`: EF Core inserts/updates/deletes with before/after snapshots (masked).
+
+Behavior:
+- Sensitive headers and JSON keys/paths are masked.
+- Bodies are captured only for safe content types (json/text) and truncated to a max size.
+- Sampling applies to normal requests; 500+ responses always logged.
+- Background queues persist logs; drops are recorded in Serilog.
+- Retention worker deletes old rows based on configured days.
+
+Exclusions:
+- Default excluded paths: `/swagger`, `/health`.
+- Default excluded content types: `multipart/form-data`, `application/octet-stream`.
+
+Enable/disable:
+- `Logging:Requests:Enabled`
+- `Logging:Errors:Enabled`
+- `Logging:Transactions:Enabled`
 
 ## Email (SMTP + IMAP/POP3)
 Email sending and inbox reading are supported with background processors:
@@ -80,12 +110,38 @@ Notes:
 Keep this section in sync with `appsettings.json` and `appsettings.Development.json`.
 
 ```
-ConnectionStrings:DefaultConnection  -> SQLite connection string (e.g., Data Source=app.db)
+ConnectionStrings:MainDb             -> SQLite connection string (e.g., Data Source=app.db)
+ConnectionStrings:LogsDb             -> Logs SQLite connection string (e.g., Data Source=logs.db)
 Jwt:Issuer                           -> JWT issuer
 Jwt:Audience                         -> JWT audience
 Jwt:SigningKey                       -> JWT signing key
 Outbox:BatchSize                     -> Outbox processor batch size
 Outbox:PollingSeconds                -> Outbox polling interval in seconds
+Logging:Requests:Enabled              -> Enable request logging
+Logging:Requests:SamplingPercent      -> Request sampling percentage
+Logging:Requests:MaxBodyBytes         -> Max request/response body bytes to capture
+Logging:Requests:ExcludedPaths        -> Paths excluded from request logging
+Logging:Requests:ExcludedContentTypes -> Content types excluded from body capture
+Logging:Errors:Enabled                -> Enable error logging
+Logging:Errors:MaxBodyBytes           -> Max request body bytes for error logging
+Logging:Transactions:Enabled          -> Enable transaction logging
+Logging:Transactions:ExcludedEntities -> Entities excluded from transaction logging
+Logging:Transactions:ExcludedProperties -> Properties excluded from snapshots
+Logging:Mask:Enabled                  -> Enable masking
+Logging:Mask:HeaderDenyList           -> Headers always masked
+Logging:Mask:HeaderAllowList          -> Headers allowlist (optional)
+Logging:Mask:JsonKeys                 -> JSON keys to mask
+Logging:Mask:JsonPaths                -> JSON paths to mask
+Logging:Retention:Enabled             -> Enable retention cleanup
+Logging:Retention:RunIntervalMinutes  -> Retention run interval
+Logging:RetentionDays:Requests        -> Request log retention days
+Logging:RetentionDays:Errors          -> Error log retention days
+Logging:RetentionDays:Transactions    -> Transaction log retention days
+Logging:Enrichment:TenantClaim        -> Claim used for tenant id
+Logging:Enrichment:UserIdClaim        -> Claim used for user id
+Logging:Enrichment:TenantHeader       -> Header used for tenant id
+Logging:Queue:Capacity                -> In-memory log queue capacity
+Logging:RequestIdHeader               -> Request id header name
 Email:Smtp:Host                       -> SMTP host
 Email:Smtp:Port                       -> SMTP port
 Email:Smtp:UseSsl                     -> SMTP SSL toggle
